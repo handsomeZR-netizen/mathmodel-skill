@@ -1,0 +1,6 @@
+# state/ 目录占位
+
+运行时 stage 0 会从 templates/decision_log.json 复制初始化 decision_log.json 到本目录。
+其他 state 文件 (scores.json, iteration_counts.json) 由各阶段动态产生。
+
+**不要** 把本目录内容提交版本控制 (git ignore)。

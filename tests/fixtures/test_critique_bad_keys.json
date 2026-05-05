@@ -1,0 +1,15 @@
+{
+  "stage_id": 1,
+  "iteration": 0,
+  "scores": {
+    "wrong_key_1": {"name": "三题对比", "score": 8, "evidence": "..."},
+    "wrong_key_2": {"name": "团队优势", "score": 7, "evidence": "..."},
+    "wrong_key_3": {"name": "风险", "score": 7, "evidence": "..."},
+    "wrong_key_4": {"name": "时间", "score": 8, "evidence": "..."},
+    "wrong_key_5": {"name": "决策", "score": 7, "evidence": "..."}
+  },
+  "min_score": 7,
+  "mean_score": 7.4,
+  "issues": [],
+  "verdict": "pass"
+}

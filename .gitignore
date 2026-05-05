@@ -1,0 +1,29 @@
+# 用户运行时产物
+state/decision_log.json
+state/scores.json
+state/iteration_counts.json
+results/
+figures/
+paper_workspace/
+paper_output/
+*.aux
+*.log
+*.toc
+*.out
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+
+# 蒸馏后 PDF 已删, 防误提交大文件
+references/papers/*.pdf
+
+# OS / 编辑器
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

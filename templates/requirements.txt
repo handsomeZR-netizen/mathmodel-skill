@@ -1,0 +1,47 @@
+# CUMCM Skill Python 依赖 (在 stage 0 工具就绪检查时安装)
+# pip install -r requirements.txt
+
+# 核心计算
+numpy>=1.24
+scipy>=1.11
+pandas>=2.0
+matplotlib>=3.7
+seaborn>=0.12
+
+# 优化
+cvxpy>=1.4
+cvxopt>=1.3        # cvxpy GLPK 后端依赖
+pulp>=2.7          # MILP 备选
+# gurobipy>=11.0   # 可选, 商用求解器 (有学生 license)
+
+# 机器学习
+scikit-learn>=1.3
+xgboost>=2.0
+lightgbm>=4.0
+imbalanced-learn>=0.11   # SMOTE 等不平衡处理
+
+# 时间序列
+statsmodels>=0.14
+
+# 启发式 / 多目标
+deap>=1.4
+pyswarms>=1.3
+
+# 灵敏度分析
+SALib>=1.4
+
+# 仿真
+simpy>=4.0
+mesa>=2.1
+
+# PDF / 文档
+pdfplumber>=0.10
+pypdf>=3.17
+
+# Diff 处理 (extract_diff.py 的 unidiff 模式)
+unidiff>=0.7
+
+# 渲染 (render_paper.py 备用方案)
+# pandoc 是 binary, 不在 pip 内, 需另装: https://pandoc.org/installing.html
+
+# LaTeX 编译需 xelatex (TeX Live 或 MiKTeX), 非 pip

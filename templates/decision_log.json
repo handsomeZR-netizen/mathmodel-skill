@@ -1,0 +1,170 @@
+{
+  "_schema_version": "2.0",
+  "_doc": "跨阶段决策日志。每个阶段开头读、结尾写。L2 回检读此文件寻找跨阶段冲突。schema 与 stage_NN.md 实际写入字段一一对齐。",
+  "problem": null,
+  "problem_meta": {
+    "year": null,
+    "letter": null,
+    "title": null,
+    "deadline_iso": null,
+    "team_size": null
+  },
+  "mode": "standard",
+  "started_at": null,
+  "current_stage": 0,
+  "budget": {
+    "tokens_used": 0,
+    "tokens_cap": 200000,
+    "stage_durations_h": {}
+  },
+  "stages": {
+    "0": {
+      "_label": "kickoff",
+      "team_roles": {},
+      "tools_ready": [],
+      "checklist_completed": false,
+      "problem_scan": {
+        "problem_id": null,
+        "domain_keywords": [],
+        "data_attachments": [],
+        "subproblem_count": null,
+        "primary_problem_type": null,
+        "secondary_types": [],
+        "estimated_difficulty": null,
+        "data_size_signal": null
+      },
+      "time_budget_h": {},
+      "collab_protocol": {},
+      "notes": ""
+    },
+    "1": {
+      "_label": "problem_selection",
+      "candidates_assessed": [],
+      "selected": null,
+      "rationale": "",
+      "rejected_alternatives": [],
+      "risks_identified": []
+    },
+    "2": {
+      "_label": "analysis",
+      "decomposition": [],
+      "key_variables": [],
+      "key_constraints": [],
+      "objective_per_subproblem": {},
+      "data_schema": {},
+      "subproblem_dependency": {}
+    },
+    "3": {
+      "_label": "model_selection",
+      "candidate_models": [],
+      "selected_per_subproblem": {},
+      "rejection_log": [],
+      "toy_demos_passed": false,
+      "red_team": [],
+      "model_family_consistency": ""
+    },
+    "4": {
+      "_label": "foundation",
+      "assumptions": [],
+      "symbols": [],
+      "terminology": [],
+      "consistency_check": {}
+    },
+    "5": {
+      "_label": "subproblem_loop",
+      "sub_problems": {
+        "_template": {
+          "model_name": "",
+          "math_formulation_path": "",
+          "code_path": "",
+          "results_path": "",
+          "figures": [],
+          "key_metrics": {},
+          "physical_meaning_summary": "",
+          "scores": {},
+          "iterations": 0
+        }
+      },
+      "cross_reference_chain": {},
+      "assumption_change_history": []
+    },
+    "6": {
+      "_label": "robustness",
+      "params_varied_jointly": [],
+      "method": "",
+      "deltas": [],
+      "robust_intervals": {},
+      "stability_verdict": "",
+      "failure_warning": "",
+      "L2_backtrack": {},
+      "figures": []
+    },
+    "7": {
+      "_label": "evaluation",
+      "strengths": [],
+      "limitations": [],
+      "improvements": [],
+      "generalizations": []
+    },
+    "8": {
+      "_label": "writing",
+      "section_word_counts": {},
+      "figures_per_subproblem": {},
+      "tables_per_subproblem": {},
+      "abstract_drafts": [],
+      "anchor_phrase_hits": {},
+      "danger_phrase_hits": []
+    },
+    "9": {
+      "_label": "review",
+      "anti_patterns_check": {
+        "total": 32,
+        "passed": 0,
+        "fixed": 0,
+        "deferred": 0,
+        "details": []
+      },
+      "panel_scores": {
+        "panel_v1": {},
+        "aggregate_v1": {},
+        "redo_actions": [],
+        "panel_v2": {}
+      },
+      "weakest_section": null,
+      "redo_log": [],
+      "red_team_record": [],
+      "final_pdf_path": null,
+      "submission_ready": false
+    }
+  },
+  "scores": {
+    "_doc": "{stage_id: [iter_index: {dim: score}]}, score 1-10. dim key 必须命中 feedback_layer1_critic.md §6 的英文 snake_case 白名单",
+    "0": [],
+    "1": [],
+    "2": [],
+    "3": [],
+    "4": [],
+    "5": [],
+    "6": [],
+    "7": [],
+    "8": [],
+    "9": []
+  },
+  "iterations": {
+    "_doc": "{stage_id: count_of_iterations}",
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "7": 0,
+    "8": 0,
+    "9": 0
+  },
+  "events": {
+    "_doc": "时间线事件: backtrack, panel, red_team, calibration, mode_change, problem_scan",
+    "log": []
+  }
+}
