@@ -52,7 +52,16 @@
       "key_constraints": [],
       "objective_per_subproblem": {},
       "data_schema": {},
-      "subproblem_dependency": {}
+      "subproblem_dependency": {},
+      "eda_report_path": null,
+      "eda_findings": {
+        "_doc": "由 scripts/run_eda.py 写入; 缺失/异常/相关性/分布/数据-假设对齐",
+        "missing_pct_per_col": {},
+        "outliers_count_per_col": {},
+        "key_correlations": [],
+        "distribution_summary": {},
+        "data_assumption_alignment": {}
+      }
     },
     "3": {
       "_label": "model_selection",
@@ -82,7 +91,15 @@
           "key_metrics": {},
           "physical_meaning_summary": "",
           "scores": {},
-          "iterations": 0
+          "iterations": 0,
+          "expected_range": {
+            "_doc": "Step A.5 预填: {field: {min, max, unit, shape?, dtype?}}; Step C 由 scripts/run_solver.py 比对",
+            "objective": {"min": null, "max": null, "unit": ""},
+            "solve_time_s": {"max": 300}
+          },
+          "actual_results": {},
+          "sanity_check_status": null,
+          "sanity_issues": []
         }
       },
       "cross_reference_chain": {},
@@ -112,6 +129,15 @@
       "figures_per_subproblem": {},
       "tables_per_subproblem": {},
       "abstract_drafts": [],
+      "abstract_meta": {
+        "_doc": "摘要专项指标, 由 stage 8 摘要 loop 写入。每轮迭代追加一项",
+        "iters": [],
+        "final_word_count": null,
+        "final_quant_count": null,
+        "final_keywords": [],
+        "danger_phrase_hits": [],
+        "anchor_phrase_hits": []
+      },
       "anchor_phrase_hits": {},
       "danger_phrase_hits": []
     },
@@ -138,7 +164,7 @@
     }
   },
   "scores": {
-    "_doc": "{stage_key: [{iteration, scores:{dim:score}, min, mean, verdict, ts, qi_id?}]}. stage 5 双轨: '5' 存 stage-level, '5_per_qi' 存 per-Qi (entry 含 qi_id). dim key 必须命中 feedback_layer1_critic.md §6 (1_xxx/2_xxx/.../5_xxx) 白名单",
+    "_doc": "{stage_key: [{iteration, scores:{dim:score}, min, mean, verdict, ts, qi_id?}]}. stage 5 双轨: '5' stage-level / '5_per_qi' (含 qi_id). stage 8 双轨: '8' 整篇 / '8_abstract' 摘要专项 (阈值 min≥9 mean≥9). dim key 必须命中 feedback_layer1_critic.md §6 (1_xxx/2_xxx/.../5_xxx) 白名单",
     "0": [],
     "1": [],
     "2": [],
@@ -149,6 +175,7 @@
     "6": [],
     "7": [],
     "8": [],
+    "8_abstract": [],
     "9": []
   },
   "iterations": {
@@ -163,6 +190,7 @@
     "6": 0,
     "7": 0,
     "8": 0,
+    "8_abstract": 0,
     "9": 0
   },
   "events": {

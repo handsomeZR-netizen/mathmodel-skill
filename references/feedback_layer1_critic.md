@@ -98,6 +98,15 @@ def verdict(scores, issues):
 if iter == 3 and verdict == "refine": → 标记 carryover, 进下一阶段, L2 处理
 ```
 
+**严格阈值例外** (variant 收紧):
+
+| (stage, variant) | pass_min / pass_mean | pass_early_min / pass_early_mean | 理由 |
+|---|---|---|---|
+| 默认 | 7 / 8 | 9 / 9 | 通用 |
+| (8, abstract) | **9 / 9** | 10 / 10 | 摘要权重事实上≈30%, pass 不能 8 字段 |
+
+凡有此表登记的 (stage, variant), `compute_verdict` 用收紧阈值; 否则用默认。
+
 此定义与 `SKILL.md` "收敛准则" / `rubrics.md` 阈值汇总 / `scripts/score_artifact.py compute_verdict` **必须完全一致**。
 
 ### 4. Diff-only 精修协议
@@ -262,7 +271,7 @@ Critic 在 `issues` 数组中可以直接引用 anti_pattern ID:
 ```
 关键: H1-H3
 
-#### Stage 8
+#### Stage 8 (整篇, `variant: "stage_level"`, 默认)
 ```json
 "scores": {
   "1_abstract_5_paragraph": {...},
@@ -273,6 +282,22 @@ Critic 在 `issues` 数组中可以直接引用 anti_pattern ID:
 }
 ```
 关键: A1-A5, I1-I5
+
+#### Stage 8 (摘要专项, `variant: "abstract"`, **min≥9 mean≥9**)
+```json
+{
+  "stage_id": 8,
+  "variant": "abstract",
+  "scores": {
+    "1_paragraph_structure": {"score": <1-10>, "evidence": "<5 段顺序 / 字数 600-900>"},
+    "2_quant_results": {"score": <1-10>, "evidence": "<段3 ≥3 数值, 含单位>"},
+    "3_named_variant": {"score": <1-10>, "evidence": "<段1 出现命名变体, 不是 vanilla>"},
+    "4_per_qi_main_result": {"score": <1-10>, "evidence": "<段3 每 Qi 一句结论, 含数>"},
+    "5_keywords_quality": {"score": <1-10>, "evidence": "<4-6 个关键词, 每个 ≤8 字, 无空泛>"}
+  }
+}
+```
+关键: A1-A5 全套 + phrase_bank §10 危险句式零命中。**调用 ≥3 次 (摘要 vs 论文权重显著, 不允许 carryover)**: stage 8 主体 pass 后, 摘要 loop 跑到 verdict ∈ {pass, pass_early}, 否则触发 block。
 
 #### Stage 9
 ```json

@@ -41,14 +41,15 @@ next: stage_06_robustness
 
 ```
 for Qi in [Q1, Q2, ..., Qn]:
-    A. 模型完整化 (45 min)
-    B. 求解实现 (2-4h)
-    C. 结果验证 (30 min)
-    D. 子灵敏度 (1h, optional 但建议)
-    E. 物理意义 (15 min)
-    F. L1 自评 + 必要时 diff-only 精修
-    G. 输出移交 (写 decision_log)
-    H. 子检查点: Qi 是否引用上游? 符号是否与 stage 4 一致?
+    A.   模型完整化 (45 min)
+    A.5. ⭐ Pre-mortem: 预填 expected_range (15 min, P1-11)
+    B.   求解实现 (2-4h)
+    C.   ⭐ 自动 sanity (run_solver.py 比对 expected_range, 30 min)
+    D.   子灵敏度 (1h, optional 但建议)
+    E.   物理意义 (15 min)
+    F.   L1 自评 + 必要时 diff-only 精修
+    G.   输出移交 (写 decision_log)
+    H.   子检查点: Qi 是否引用上游? 符号是否与 stage 4 一致?
 ```
 
 ---
@@ -88,6 +89,30 @@ Lagrangian Relaxation 改进:
 - 公式用 LaTeX (即使现在是 markdown, stage 8 直接复制)
 - "改进点" 用粗体强调
 
+### A.5. ⭐ Pre-mortem: 预填 expected_range (15 min, P1-11)
+
+**写代码之前**, 必须先回答: "我预期答案大概什么样?"。这是反 D2/D3 (量级离谱) 的硬手段——**不写下预期, 跑出来的鬼东西也会自我说服**。
+
+把每个关键输出写成 `expected_range`, 落盘到 `cwd/state/Q1_expected.json`:
+
+```json
+{
+  "objective":     {"min": 1e3, "max": 1e6, "unit": "元"},
+  "x_star":        {"shape": [100], "dtype": "int", "min": 0, "max": 50},
+  "solve_time_s":  {"max": 120}
+}
+```
+
+**填法**:
+- 量级: 物理直觉 + 题面常数 + 贪心 baseline 的 0.5×~2× 区间
+- shape: 应该有几个变量、几个时段、几条路径
+- 单位: **必填**, 防止 `元` 写成 `万元` 之类的低级错
+- 时间: 求解器单次预算; 超时即 fallback
+
+预期与最终结果的容差不必苛刻, 但**两个数量级以上偏差就该 block**。
+
+同时把 `expected_range` 写入 `decision_log.stages.5.sub_problems.Q1.expected_range` (decision_log 模板已留位)。
+
 ### B. 求解实现 (2-4h)
 
 用 Python (numpy/scipy/sklearn/cvxpy) 实现。**约定**:
@@ -126,10 +151,22 @@ print(f"Q1 求解状态: {prob.status}")
 print(f"目标函数值: {prob.value:.2f}")
 print(f"求解时间: {prob.solver_stats.solve_time:.2f} s")
 
-# Step 4: 保存结果
+# Step 4: 保存结果 (二进制 + JSON 摘要, 后者供 run_solver.py 校验)
 x_star = x.value.astype(int)
 np.save("results/Q1_x.npy", x_star)
+
+import json
+results = {
+    "objective": float(prob.value),
+    "x_star": x_star.tolist(),
+    "solve_time_s": float(prob.solver_stats.solve_time),
+    "status": prob.status,
+}
+with open("results/Q1_results.json", "w", encoding="utf-8") as f:
+    json.dump(results, f, ensure_ascii=False, indent=2)
 ```
+
+**关键**: 关键标量+数组以 JSON 写入 `results/Qi_results.json`, 这是 Step C 自动 sanity 的输入。
 
 代码要求:
 - 中文注释 (anti_pattern D1)
@@ -138,17 +175,42 @@ np.save("results/Q1_x.npy", x_star)
 - `print` 关键状态 (sanity check)
 - 结果保存到 `results/Qi_*.npy` 或 `.csv`
 
-### C. 结果验证 (30 min)
+### C. ⭐ 自动 sanity (30 min, P1-11)
 
-四步 sanity check (anti_pattern D2/D3):
+**不再手 print 看, 用脚本卡点**。`run_solver.py` 把 Step A.5 写的 `expected_range` 与求解器写出的 `Qi_results.json` 自动比对。
 
-1. **状态检查**: `prob.status == "optimal"` ?
-2. **数量级**: 结果在合理范围 (e.g., x_i ∈ [0, 50] 都满足)?
-3. **边界 case**: 输入零成本, 看是否取上限?
-4. **与基线对比**: 简单贪心算法, 本模型应优于贪心?
+```bash
+python <skill>/scripts/run_solver.py \
+    --qi Q1 \
+    --code cwd/results/Q1_solve.py \
+    --expected cwd/state/Q1_expected.json \
+    --results cwd/results/Q1_results.json \
+    --timeout 120
+```
+
+退出码语义:
+
+| 退出码 | 含义 | 处理 |
+|---|---|---|
+| 0 | 全部 in-range | 进 D |
+| 1 | 有 out-of-range | block, 回 A 重审建模 (anti_pattern D2/D3) |
+| 2 | 求解器崩溃 / timeout | block, 回 stage 3 fallback (anti_pattern J3) |
+| 3 | 文件 / schema 错误 | 修补脚本输出 |
+
+工具自动写入:
+- `decision_log.stages.5.sub_problems.Q1.actual_results` (字段摘要 + shape)
+- `decision_log.stages.5.sub_problems.Q1.sanity_check_status` ∈ {ok, warn, block, timeout, crashed, no_results_file}
+- `decision_log.stages.5.sub_problems.Q1.sanity_issues` (issues list)
+
+**额外手工 4 项** (单元/边界/基线/单调性):
+
+1. 单位与符号: 每输出有单位; 现金流 ≥ 0 ?
+2. 边界 case: 输入零成本时是否取上限?
+3. 基线对比: 贪心 vs 本模型, 提升 >0%?
+4. 单调性: 涨价 → 利润涨? 不涨说明模型有 bug
 
 ```python
-# 边界 case 测试
+# 基线对比 (写进 Q1_solve.py 末尾)
 x_greedy = np.minimum(50, B // np.maximum(c, 1))
 profit_greedy = ((p - c) * x_greedy).sum()
 print(f"贪心基线利润: {profit_greedy:.2f}")
@@ -156,7 +218,7 @@ print(f"本模型利润: {prob.value:.2f}")
 print(f"相对提升: {(prob.value - profit_greedy) / profit_greedy * 100:.2f}%")
 ```
 
-不通过任一项 → 回 A 检查模型。
+任一项失败 → 回 A 检查模型。
 
 ### D. 子灵敏度 (1h, 强烈建议)
 
@@ -273,8 +335,9 @@ plt.savefig("figures/Q1_sensitivity.png", dpi=300)
 1. 所有 Qi 通过 per-Qi rubric (全维 ≥7)
 2. Stage-level rubric 全维 ≥7
 3. 复用链满足 (题目允许时强制)
-4. (championship) red-team 一次,针对最弱的 Qi
-5. 触发 L2: 跨阶段回检 stage 3 (模型选择前提是否被结果推翻) + stage 4 (符号一致性)
+4. **每个 Qi 的 `sanity_check_status == "ok"`** (run_solver.py 自动校验通过)
+5. (championship) red-team 一次,针对最弱的 Qi
+6. 触发 L2: 跨阶段回检 stage 3 (模型选择前提是否被结果推翻) + stage 4 (符号一致性)
 
 → 跳转 `stage_06_robustness.md`
 

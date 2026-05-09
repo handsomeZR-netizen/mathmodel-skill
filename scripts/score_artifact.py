@@ -9,11 +9,18 @@ score_artifact.py — L1 Critic 输出后的本地处理脚本
 
 路径协议: 默认从 cwd/state/decision_log.json 读写, 可用 CUMCM_STATE_DIR env var 或 --decision-log 覆盖。
 
+variant 维度 (P1-9, P1-10):
+  stage_level (默认): 通用阶段评分
+  per_qi:             stage 5 子问题级评分, 必须带 --qi-id
+  abstract:           stage 8 摘要专项评分, 阈值收紧到 min≥9 mean≥9
+
 用法:
     python scripts/score_artifact.py --stage 1 --critique state/critique_v0.json
     CUMCM_STATE_DIR=/tmp/state python scripts/score_artifact.py --stage 1 --critique critique.json
-    # stage 5 per-Qi 评分:
+    # stage 5 per-Qi:
     python scripts/score_artifact.py --stage 5 --variant per_qi --qi-id Q1 --critique critique_q1_v0.json
+    # stage 8 摘要:
+    python scripts/score_artifact.py --stage 8 --variant abstract --critique abstract_v0.json
 """
 
 import json
@@ -26,7 +33,7 @@ from datetime import datetime
 VALID_VERDICTS = {"block", "pass_early", "pass", "refine", "carryover"}
 
 # 各 stage 的 5 维 dim key 白名单 (与 feedback_layer1_critic.md §6 对齐, 数字前缀 + 英文 snake_case)
-# stage 5 有 per-Qi 与 stage-level 两套, 通过 critique["variant"] 或 CLI --variant 区分
+# stage 5 / 8 通过 critique["variant"] 或 CLI --variant 区分子轨
 DIM_WHITELIST = {
     0: {"1_role_clarity", "2_tools_ready", "3_time_planning", "4_problem_scan", "5_collab_protocol"},
     1: {"1_three_options_depth", "2_team_strength_match", "3_risk_identification",
@@ -47,11 +54,20 @@ DIM_WHITELIST = {
         "4_generalization_concrete", "5_self_critique_credibility"},
     8: {"1_abstract_5_paragraph", "2_section_completeness", "3_formulas_figures_citations",
         "4_language_quality", "5_visual_consistency"},
+    "8_abstract": {"1_paragraph_structure", "2_quant_results", "3_named_variant",
+                   "4_per_qi_main_result", "5_keywords_quality"},
     9: {"1_anti_pattern_coverage", "2_visual_polish", "3_panel_consensus",
         "4_bottleneck_addressed", "5_pdf_compile_clean"},
 }
 
-VALID_VARIANTS = {"stage_level", "per_qi"}
+VALID_VARIANTS = {"stage_level", "per_qi", "abstract"}
+
+# 严格阈值: 摘要权重事实上≈30%, pass 收紧到 min≥9 mean≥9, 早退取消 (没有比这更高的级别)
+# key: (stage_id, variant) → {"pass_min", "pass_mean", "pass_early_min", "pass_early_mean"}
+DEFAULT_THRESHOLDS = {"pass_min": 7, "pass_mean": 8, "pass_early_min": 9, "pass_early_mean": 9}
+STRICT_THRESHOLDS = {
+    (8, "abstract"): {"pass_min": 9, "pass_mean": 9, "pass_early_min": 10, "pass_early_mean": 10},
+}
 
 
 def resolve_decision_log_path(cli_arg: str = None) -> Path:
@@ -64,11 +80,26 @@ def resolve_decision_log_path(cli_arg: str = None) -> Path:
     return Path.cwd() / "state" / "decision_log.json"
 
 
-def resolve_whitelist_key(stage_id: int, variant: str) -> str | int:
+def resolve_whitelist_key(stage_id: int, variant: str):
     """根据 stage_id + variant 选 DIM_WHITELIST 的 key"""
     if stage_id == 5 and variant == "per_qi":
         return "5_per_qi"
+    if stage_id == 8 and variant == "abstract":
+        return "8_abstract"
     return stage_id
+
+
+def resolve_stage_key(stage_id: int, variant: str) -> str:
+    """decision_log.scores 的存储 key"""
+    if stage_id == 5 and variant == "per_qi":
+        return "5_per_qi"
+    if stage_id == 8 and variant == "abstract":
+        return "8_abstract"
+    return str(stage_id)
+
+
+def get_thresholds(stage_id: int, variant: str) -> dict:
+    return STRICT_THRESHOLDS.get((stage_id, variant), DEFAULT_THRESHOLDS)
 
 
 def validate_critique(critique: dict, stage_id: int, variant: str = "stage_level") -> tuple[bool, str]:
@@ -89,6 +120,9 @@ def validate_critique(critique: dict, stage_id: int, variant: str = "stage_level
 
     if variant == "per_qi" and stage_id != 5:
         return False, f"variant=per_qi 仅适用于 stage 5, 实际 stage {stage_id}"
+
+    if variant == "abstract" and stage_id != 8:
+        return False, f"variant=abstract 仅适用于 stage 8, 实际 stage {stage_id}"
 
     if not isinstance(critique["scores"], dict) or len(critique["scores"]) != 5:
         return False, "scores 必须是 5 维 dict"
@@ -123,12 +157,16 @@ def validate_critique(critique: dict, stage_id: int, variant: str = "stage_level
     return True, "ok"
 
 
-def compute_verdict(critique: dict) -> str:
+def compute_verdict(critique: dict, stage_id: int = None, variant: str = "stage_level") -> str:
     """
     根据分数与 issues 重算 verdict (覆盖 critic 的 verdict 字段, 防 gaming)。
     优先级 (高→低): block > pass_early > pass > refine
-    与 SKILL.md / feedback_layer1_critic.md 三处一致。
+    阈值默认 min≥9/mean≥9 (early)、min≥7/mean≥8 (pass);
+    (stage 8, variant=abstract) 收紧到 min≥9/mean≥9, early 取消。
     """
+    sid = stage_id if stage_id is not None else critique.get("stage_id")
+    th = get_thresholds(sid, variant)
+
     scores = [d["score"] for d in critique["scores"].values()]
     min_s = min(scores)
     mean_s = sum(scores) / len(scores)
@@ -136,9 +174,9 @@ def compute_verdict(critique: dict) -> str:
 
     if len(high_issues) >= 1:
         return "block"
-    if min_s >= 9 and mean_s >= 9:
+    if min_s >= th["pass_early_min"] and mean_s >= th["pass_early_mean"]:
         return "pass_early"
-    if min_s >= 7 and mean_s >= 8:
+    if min_s >= th["pass_min"] and mean_s >= th["pass_mean"]:
         return "pass"
     return "refine"
 
@@ -159,10 +197,7 @@ def update_decision_log(stage_id: int, critique: dict, decision_log_path: Path,
     with open(decision_log_path, "r", encoding="utf-8") as f:
         log = json.load(f)
 
-    if variant == "per_qi":
-        stage_key = "5_per_qi"
-    else:
-        stage_key = str(stage_id)
+    stage_key = resolve_stage_key(stage_id, variant)
 
     if stage_key not in log["scores"] or not isinstance(log["scores"][stage_key], list):
         log["scores"][stage_key] = []
@@ -188,11 +223,12 @@ def update_decision_log(stage_id: int, critique: dict, decision_log_path: Path,
         json.dump(log, f, ensure_ascii=False, indent=2)
 
 
-def decide_next_action(critique: dict, max_iter: int = 3) -> dict:
+def decide_next_action(critique: dict, max_iter: int = 3,
+                       stage_id: int = None, variant: str = "stage_level") -> dict:
     """
     返回下一步行为
     """
-    actual_verdict = compute_verdict(critique)
+    actual_verdict = compute_verdict(critique, stage_id, variant)
     if actual_verdict != critique.get("verdict"):
         critique["verdict"] = actual_verdict
 
@@ -243,9 +279,14 @@ def main():
         print(f"[FAIL] Schema error: {msg}")
         return 1
 
-    actual_verdict = compute_verdict(critique)
+    actual_verdict = compute_verdict(critique, args.stage, variant)
     label = f"stage {args.stage}" + (f" / {qi_id}" if variant == "per_qi" else "")
+    if variant == "abstract":
+        label += " / abstract"
+    th = get_thresholds(args.stage, variant)
     print(f"{label}, iter {critique['iteration']}, variant {variant}")
+    print(f"  Thresholds: pass min≥{th['pass_min']} mean≥{th['pass_mean']}, "
+          f"early min≥{th['pass_early_min']} mean≥{th['pass_early_mean']}")
     print(f"  Min score: {critique['min_score']}, Mean: {critique['mean_score']:.2f}")
     print(f"  Critic verdict: {critique['verdict']} -> Actual: {actual_verdict}")
     print(f"  decision_log: {decision_log_path}")
@@ -253,7 +294,7 @@ def main():
     update_decision_log(args.stage, critique, decision_log_path, variant, qi_id)
     print(f"  [OK] written")
 
-    action = decide_next_action(critique, args.max_iter)
+    action = decide_next_action(critique, args.max_iter, args.stage, variant)
     print(f"\n下一步: {action['action']}")
     print(json.dumps(action, ensure_ascii=False, indent=2))
     return 0

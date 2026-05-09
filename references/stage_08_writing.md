@@ -56,11 +56,13 @@ next: stage_09_review
 9. 写正文 §7 评价与推广       (1h, 复用 stage 7)
 10. 写正文 §8 参考文献        (30 min, 整理)
 11. 写附录 (代码 + 数据表)    (30 min)
-12. ⭐ 最后写摘要             (45 min)
-13. ⭐ 整篇 L1 自评 + 修订    (1-2h)
+12. ⭐ 最后写摘要 + 摘要专项 loop  (60-90 min, 见下方"摘要专项 loop")
+13. ⭐ 整篇 L1 自评 + 修订           (1-2h)
 ```
 
 理由: 摘要是浓缩,只有正文写完才能精确浓缩。先写摘要会导致后续被自己摘要"绑架"。
+
+**摘要权重事实上 ≈ 30%** (评委先看摘要决定是否细看), 因此摘要在通用 stage 8 的 5 维评分之外, **额外**跑独立的"摘要专项 loop", `variant=abstract`, 阈值收紧到 min≥9 mean≥9, 不允许 carryover。详见 §"摘要专项 loop"。
 
 ---
 
@@ -312,6 +314,47 @@ import cvxpy as cp
 
 ---
 
+## 摘要专项 loop (P1-9, ⭐ 一等奖关键)
+
+整篇 L1 通过后, 对摘要单独跑 ≥3 轮专项 critic, 阈值 **min≥9 mean≥9**, 5 维全是可机检指标:
+
+| 维度 | dim key | 检查方法 |
+|------|---------|---------|
+| 1 | `1_paragraph_structure` | 5 段顺序 + 字数 600-900 + 段长 ∈ 推荐区间 |
+| 2 | `2_quant_results` | grep 段 3 数字 (含 % / 元 / 件 / σ / 倍率), count ≥3 |
+| 3 | `3_named_variant` | 段 1 模型名是否含修饰词 (`改进/动态/混合/广义/双层/...`) |
+| 4 | `4_per_qi_main_result` | 段 3 每 Qi 至少一句, 句中含数, 与 §5 主结论一致 |
+| 5 | `5_keywords_quality` | 4-6 个, 每个 ≤8 字, 排除空泛词 (如"研究/分析") |
+
+**调用流程**:
+
+```python
+# 1. 写完摘要初稿 abstract_v0.md
+# 2. 让 critic 输出 critique_abs_v0.json (variant=abstract)
+# 3. 喂给打分脚本:
+python scripts/score_artifact.py --stage 8 --variant abstract \
+    --critique state/critique_abs_v0.json
+# 4. 若 verdict != pass / pass_early → diff-only 精修, iter+=1
+# 5. 摘要 loop 不允许 carryover; iter==3 仍未 pass 强制 block, 用户介入
+# 6. 写入 decision_log.stages.8.abstract_meta.iters[]
+# 7. decision_log.scores["8_abstract"] 留下完整迭代轨迹
+```
+
+**block 触发条件** (与 anti_patterns 联动):
+- 段 3 量化数 < 3 (anti_pattern A1)
+- 5 段顺序错乱或缺段 (A2)
+- 命名变体缺失 (winning_patterns §4 反模式)
+- 摘要数值与 §5 / §6 主结论不一致 (A3, 严重)
+- phrase_bank §10 危险句式 ≥1 命中
+
+通过摘要 loop 的产物写入:
+- `decision_log.stages.8.abstract_meta.final_word_count`
+- `decision_log.stages.8.abstract_meta.final_quant_count`
+- `decision_log.stages.8.abstract_meta.final_keywords`
+- `decision_log.stages.8.abstract_drafts.append(<本轮 final 文本>)`
+
+---
+
 ## L1 Rubric
 
 | 维度 | 满分行为 |
@@ -337,6 +380,7 @@ import cvxpy as cp
 5. 引用 ≥10 条 GB/T 7714
 6. xelatex 编译无错
 7. L1 全维 ≥7
-8. **L2 跨阶段回检**: 论文内容与 decision_log 0-7 一致, 无新增内容偏离
+8. **摘要专项 loop**: `decision_log.scores["8_abstract"]` 最后一项 verdict ∈ {pass, pass_early}, min≥9 mean≥9
+9. **L2 跨阶段回检**: 论文内容与 decision_log 0-7 一致, 无新增内容偏离
 
 → 跳转 `stage_09_review.md`

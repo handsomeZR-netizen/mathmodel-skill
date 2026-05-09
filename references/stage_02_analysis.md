@@ -1,10 +1,11 @@
 ---
 stage: 2
 name: analysis
-duration_h: 2-3
+duration_h: 2.5-3.5
 inputs: [stage.1.selected, problem_pdf, attachment_data_paths]
-outputs: [stage.2.{decomposition, key_variables, key_constraints, objective_per_subproblem, data_schema, subproblem_dependency}]
+outputs: [stage.2.{decomposition, key_variables, key_constraints, objective_per_subproblem, data_schema, subproblem_dependency, eda_report_path, eda_findings}]
 loads_reference: [rubrics.md§Stage_2]
+loads_template: [scripts/run_eda.py]
 feedback: [L1]
 next: stage_03_model_selection
 ---
@@ -92,28 +93,68 @@ Q1 卡片
 
 ≥10 个变量。
 
-### Step 4: 数据 schema 扫描 (30 min)
+### Step 4: 数据 EDA 报告 (60 min, ⭐ P1-10)
 
-用 pandas 快速扫附件:
+> B/C 题没 EDA = 后续 stage 5 在裸跑。即便 A 题数据少, 也强制扫一遍 (题面给的常数 / 表 / 几何信息也算)。
+> **不通过本步骤不进 stage 3。**
 
-```python
-import pandas as pd
-df = pd.read_excel("附件1.xlsx")
-print(df.shape)
-print(df.dtypes)
-print(df.describe())
-print(df.isnull().sum())
+不直接打开 pandas, **先调脚本**生成结构化 EDA 报告:
+
+```bash
+python <skill>/scripts/run_eda.py \
+    --data-dir cwd/data/ \
+    --out cwd/eda_report.md \
+    --decision-log cwd/state/decision_log.json
 ```
 
-输出 schema 卡片:
+脚本产出 `cwd/eda_report.md` 含 5 个必填板块, 同时把摘要回写到 `decision_log.stages.2.eda_findings`:
+
+```markdown
+## 1. Schema (每附件一段)
+- 行数 / 列数 / 列名 / dtypes / 时间跨度 / 单位
+
+## 2. 缺失值矩阵
+- 每列缺失比例; 是否随机缺失; 是否成块缺失 (前 N 行 / 后 N 行)
+- 提议处理: 列删除 / 行删除 / 插补方法 (均值 / 前向 / KNN)
+
+## 3. 分布与异常
+- 数值列: mean/std/min/p25/p50/p75/max/skew/kurt
+- 异常: > 3σ 或 IQR 1.5× 外的样本数, 列出索引
+- 分布检验: 正态 / 泊松 / 重尾 (Anderson-Darling 或 KS, p 值)
+- 配套图: histograms.png, boxplots.png
+
+## 4. 相关性 / 依赖
+- Pearson + Spearman 矩阵 (前 30 列), corr_heatmap.png
+- 高相关对 (|r|>0.7) 列出, 提示多重共线性
+
+## 5. 数据 ↔ 假设/变量对账
+- 对 stage 2 全局变量表的每个变量, 标注: "数据列 X 提供" / "需要假设" / "需要外部参考"
+- 对 stage 4 (尚未做但可预判) 候选假设逐条注: "数据是否支撑?"
 ```
-附件 1 (xlsx):
-- 行数: 1234, 列数: 8
-- 时间跨度: 2020-01 ~ 2024-12 月度
-- 缺失: 列 "需求量" 缺失 5%
-- 异常: 列 "价格" 有 3 个 outlier (>3σ)
-- 与变量映射: p_i ← 列 "价格", d_i ← 列 "需求量"
+
+**关键产出 (写 decision_log.stages.2.eda_findings)**:
+```json
+{
+  "missing_pct_per_col": {"附件1.价格": 0.0, "附件1.需求量": 0.05},
+  "outliers_count_per_col": {"附件1.价格": 3, "附件1.需求量": 0},
+  "key_correlations": [{"a": "p", "b": "d", "r": -0.62, "method": "pearson"}],
+  "distribution_summary": {"附件1.需求量": "right-skewed, kurt=2.1, 不拒绝泊松 p=0.34"},
+  "data_assumption_alignment": {
+     "x_i": {"source": "决策变量, 无需数据"},
+     "p_i": {"source": "附件1.价格", "完整": true},
+     "d_i": {"source": "附件1.需求量", "完整": false, "missing": 0.05},
+     "α": {"source": "需要假设", "support": "文献 [1] 给 0.1-0.2"}
+  },
+  "report_path": "cwd/eda_report.md"
+}
 ```
+
+**block 触发** (high-severity issue, 不进 stage 3):
+- 题目附件存在但 `eda_findings` 为空
+- 全局变量表中有 ≥1 个变量在 `data_assumption_alignment` 既非"数据"也非"假设"也非"外部参考"
+- 关键变量缺失 >30% 但无插补方案
+
+若题目无附件 (e.g. 部分 A 题): 仍要写 EDA 简版 (题面常数表 + 几何参数表 + 单位表), 至少 1 页。
 
 ### Step 5: 子问题关系图 (15 min)
 
@@ -156,7 +197,9 @@ Q3: max E_ξ [ Σ_i p_i * x_i - C(x) - λ * Var(...) ]
   "key_constraints": [...],
   "objective_per_subproblem": {"Q1": "...", "Q2": "...", "Q3": "..."},
   "data_schema": {...},
-  "subproblem_dependency": {"Q1": [], "Q2": ["Q1"], "Q3": ["Q1", "Q2"]}
+  "subproblem_dependency": {"Q1": [], "Q2": ["Q1"], "Q3": ["Q1", "Q2"]},
+  "eda_report_path": "cwd/eda_report.md",
+  "eda_findings": { /* Step 4 已写 */ }
 }
 ```
 
@@ -169,7 +212,7 @@ Q3: max E_ξ [ Σ_i p_i * x_i - C(x) - λ * Var(...) ]
 | 1. 子问题分解清晰度 | 每 Qi 卡片完整 |
 | 2. 关键变量识别 | ≥10,标注类型 |
 | 3. 数学化程度 | 每 Qi 有目标雏形 |
-| 4. 数据契合度 | schema 已扫,变量映射清楚 |
+| 4. 数据契合度 | EDA 报告 5 板块齐, `data_assumption_alignment` 全部变量已分类 |
 | 5. 子问题关联性 | Q3 是否依赖 Q1/Q2 已识别 |
 
 ---
@@ -187,8 +230,9 @@ Q3: max E_ξ [ Σ_i p_i * x_i - C(x) - λ * Var(...) ]
 
 1. 三个子问题卡片完整
 2. 全局变量表 ≥10 项
-3. 数据 schema 扫描完成
-4. Q3 复用关系明确 (是 / 否,有理由)
-5. L1 rubric 全维 ≥7
+3. **EDA 报告 5 板块齐, eda_findings 已写入 decision_log** (P1-10)
+4. **data_assumption_alignment 中所有变量已三分类 (数据 / 假设 / 外部参考), 无未归类**
+5. Q3 复用关系明确 (是 / 否,有理由)
+6. L1 rubric 全维 ≥7
 
 → 跳转 `stage_03_model_selection.md`

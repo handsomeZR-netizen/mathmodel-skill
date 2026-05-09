@@ -113,8 +113,11 @@ description: 全国大学生数学建模竞赛 (国赛 CUMCM) 端到端工作流
 - **每个阶段开头**: `cwd/state/decision_log.json` 必读
 - **每个阶段结尾**: `cwd/state/decision_log.json` 必写 (核心决策 + 5 维评分)
 - **stage 1-9**: `references/rubrics.md` 对应章节 (L1 评分用)
+- **stage 2**: `<skill>/scripts/run_eda.py` 强制跑 (产出 `cwd/eda_report.md` + 注入 `decision_log.stages.2.eda_findings`, P1-10)
 - **stage 3, 5**: `references/model_catalog.md` (含 §11 历年题速查)
+- **stage 5**: `<skill>/scripts/run_solver.py` 每个 Qi Step C 必跑 (P1-11, expected_range 比对)
 - **stage 8**: `references/winning_patterns.md` + `references/phrase_bank.md`
+- **stage 8**: 摘要专项 loop, `score_artifact.py --variant abstract`, 阈值 min≥9 mean≥9 (P1-9)
 - **stage 9**: `references/anti_patterns.md` (逐条对照)
 - **触发反馈时**: 对应 `references/feedback_layer*.md`
 - **硬阈值评分时** (字数/图表数等): 引用 `references/empirical_distribution.md` 的实测 p 分位
@@ -131,6 +134,9 @@ description: 全国大学生数学建模竞赛 (国赛 CUMCM) 端到端工作流
 4. refine:       否则                            → diff/section-patch 精修, iter+=1, cap 3
 5. carryover:    iter == 3 仍未 pass             → 标记, 进下一阶段, L2 处理
 ```
+
+**严格阈值例外** (variant 收紧, 详见 `feedback_layer1_critic.md`):
+- `(stage 8, variant=abstract)`: pass 收紧到 min≥9 mean≥9, 不允许 carryover, iter==3 未达标直接 block
 
 此定义在 `feedback_layer1_critic.md` / `rubrics.md` / `scripts/score_artifact.py` 三处必须**完全一致**。
 
