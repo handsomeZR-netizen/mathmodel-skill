@@ -4,6 +4,20 @@
 
 ---
 
+## v3.0 三竞赛差异化
+
+panel personas 由 `competitions/<decision_log.competition>/rubric_overlay.json` 的 `panel_personas` 字段定义。各竞赛侧重不同:
+
+| Competition | 默认 5 视角 | 加权重点 |
+|---|---|---|
+| cumcm | 数学严谨 / 模型创新 / 代码正确 / 写作呈现 / 评委 30 秒 | judge_30s ×1.5 |
+| mcm | Rigor / Novelty / Communication / 30-Second Judge / Policy (D/E/F) | novelty ×1.5, judge_30s ×1.5, policy ×1.2 |
+| diangong | 电力工程师 / 数据分析 / 数学严谨 / 写作呈现 / 评委 30 秒 | engineering ×1.5, judge_30s ×1.4 |
+
+下文给出 cumcm 默认 5 视角的 prompt 模板, 其他竞赛在 prompt 头部替换 `competition_label / focus / weight` 即可 (具体 prompt 模板见 `competitions/<comp>/rubric_overlay.json` 的 panel_personas 描述, 后续可独立外置)。
+
+---
+
 ## 设计哲学
 
 **为什么需要 panel?**

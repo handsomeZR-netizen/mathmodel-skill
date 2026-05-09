@@ -1,0 +1,173 @@
+% SEED v0.1 — 电工杯论文 LaTeX 模板 (基于 ctex article)
+% 用法: 由 scripts/render_paper.py --competition diangong 调用
+% 编译: xelatex main.tex (三编, 中文必须 xelatex)
+% 电工杯无官方模板, 本模板按工程类常见排版习惯组织
+
+\documentclass[12pt,a4paper]{ctexart}
+
+\usepackage[margin=2.54cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{cite}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+    citecolor=blue,
+}
+
+\lstset{
+    basicstyle=\small\ttfamily,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    showstringspaces=false,
+    extendedchars=false,
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{电工杯论文 \#XXXX}
+\fancyhead[R]{第 \thepage\ 页 / 共 \pageref{LastPage} 页}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\titleformat*{\section}{\Large\bfseries}
+\titleformat*{\subsection}{\large\bfseries}
+\titleformat*{\subsubsection}{\normalsize\bfseries}
+
+\begin{document}
+
+% ===== 封面 =====
+\begin{titlepage}
+\begin{center}
+\vspace*{2cm}
+{\Huge \textbf{电工杯论文标题}}\\[2cm]
+{\Large 题号: \textbf{A}}\\[1cm]
+{\Large 队伍编号: \textbf{XXXX}}\\[3cm]
+\end{center}
+\end{titlepage}
+
+% ===== 摘要 =====
+\section*{摘要}
+
+% TODO: 4 段式, 600-1000 字。
+% 1. 背景段 + 题目情境
+% 2. 方法段 + 命名变体 + 求解算法
+% 3. 结果段 (≥3 个工程量化数值, 含单位)
+% 4. 工程建议段
+
+\textbf{关键词:} 关键词1; 关键词2; 关键词3; 关键词4
+
+\newpage
+\tableofcontents
+\newpage
+
+% ===== 正文 =====
+
+\section{问题背景与重述}
+
+\subsection{工程背景}
+
+\subsection{题目重述}
+
+\subsection{数据概览}
+
+\section{问题分析}
+
+\subsection{子问题分解}
+
+\subsection{子问题依赖关系}
+
+\subsection{整体技术路线}
+
+\section{模型假设与符号说明}
+
+\subsection{基本假设}
+
+\subsection{符号说明}
+
+\section{数据预处理}
+
+\subsection{数据描述}
+
+\subsection{缺失值处理}
+
+\subsection{异常值剔除}
+
+\subsection{预处理后统计描述}
+
+\section{子问题求解}
+
+\subsection{子问题 1: \{子问题名\} (主线)}
+
+\subsubsection{问题描述与工程语境}
+\subsubsection{模型建立}
+\subsubsection{求解算法}
+\subsubsection{结果与物理意义}
+
+\subsection{子问题 2: \{子问题名\} (主线)}
+
+\subsection{子问题 3: \{子问题名\} (主线)}
+
+\subsection{子问题 4: \{子问题名\} (加分)}
+
+\subsection{子问题 5: \{子问题名\} (加分)}
+
+% ... 视题目子问数添加
+
+\section{灵敏度与鲁棒性分析}
+
+\subsection{工程参数扰动设计}
+
+\subsection{联合扰动结果}
+
+\subsection{鲁棒区间与工程含义}
+
+\section{工程实施建议}
+
+\subsection{分阶段方案}
+
+\subsection{实施代价估算}
+
+\subsection{落地风险与应对}
+
+\section{模型评价}
+
+\subsection{优点}
+
+\subsection{缺点与改进}
+
+\subsection{推广性}
+
+\bibliographystyle{gbt7714-numerical}
+\bibliography{references}
+
+% ===== 附录 =====
+\appendix
+
+\section{主要算法伪代码}
+
+\section{完整代码}
+
+% TODO: 完整代码或 GitHub 链接
+
+\section{补充图表}
+
+\end{document}

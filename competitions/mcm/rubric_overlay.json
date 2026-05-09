@@ -1,0 +1,61 @@
+{
+  "_doc": "MCM/ICM 美赛特化评分维度 overlay。SEED v0.1, 阈值取自 COMAP scoring rubric。",
+  "_seed_version": "0.1",
+  "competition": "mcm",
+  "version": "0.1",
+  "dim_whitelist": {
+    "_doc": "覆盖默认 DIM_WHITELIST. 仅列出与 cumcm baseline 不同的 stage. 数量必须正好 5.",
+    "8": ["1_one_page_summary", "2_section_completeness", "3_communication_clarity", "4_novel_approach", "5_reproducibility"]
+  },
+  "stage_overrides": {
+    "8": {
+      "_note": "美赛 stage 8: 1-page summary + 8 章节 + (D/E/F 强制 Letter) + 全英文",
+      "dims": {
+        "1_one_page_summary": {
+          "describe": "1-page Summary (250-350 words), 含 problem context / approach / key results / strengths-limitations。不要求 5 anchor 但需含 ≥3 quantitative results",
+          "hard_threshold": {"summary_words": {"min": 200, "max": 400}},
+          "_seed_basis": "COMAP rubric: 'Concise summary that captures problem, approach, results'"
+        },
+        "2_section_completeness": {
+          "describe": "标准 8-10 节: Introduction / Assumptions / Notation / Models / Solution / Sensitivity / Strengths-Weaknesses / Conclusion / References / (Letter if D/E/F)"
+        },
+        "3_communication_clarity": {
+          "describe": "Communication 是 MCM Outstanding 的独立评审维度。技术写作清晰、图表自解释、术语精确。",
+          "_seed_basis": "COMAP 'Quality of writing and presentation' is graded separately"
+        },
+        "4_novel_approach": {
+          "describe": "美赛 Outstanding 评语高频 'novel / creative approach'。即使经典模型, 需有原创组合或扩展",
+          "weight_hint": 1.5
+        },
+        "5_reproducibility": {
+          "describe": "Appendix 含 code listing + data source + parameter values, 任意第三方可复现"
+        }
+      }
+    },
+    "9": {
+      "_note": "美赛终审: Letter (D/E/F) + sensitivity + reproducibility",
+      "dims": {
+        "1_anti_pattern_coverage": {
+          "describe": "对照 competitions/mcm/anti_patterns.md 逐条核查, Outstanding 应 ≤ 2 条触发"
+        },
+        "5_pdf_compile_clean": {
+          "describe": "pdflatex / xelatex 编译 0 error, 字体英文 + math symbol 正确"
+        }
+      }
+    }
+  },
+  "panel_personas": [
+    {"id": "rigor",         "label": "Rigor Reviewer",        "weight": 1.0, "focus": "假设支撑 + 公式正确 + 收敛"},
+    {"id": "novelty",       "label": "Novelty Reviewer",      "weight": 1.5, "focus": "approach 新颖 + 跨学科 + 创意"},
+    {"id": "communication", "label": "Communication Reviewer","weight": 1.3, "focus": "写作清晰 + 图表 + 术语"},
+    {"id": "judge_30s",     "label": "30-Second Judge",       "weight": 1.5, "focus": "1-page summary 抓人 + 主要 figure"},
+    {"id": "policy",        "label": "Policy / Stakeholder",  "weight": 1.2, "focus": "Letter 可读性 + 实操建议", "_note": "D/E/F 题加权"}
+  ],
+  "anti_pattern_path": "competitions/mcm/anti_patterns.md",
+  "phrase_bank_path": "competitions/mcm/phrase_bank.md",
+  "winning_patterns_path": "competitions/mcm/winning_patterns.md",
+  "abstract_template_path": "competitions/mcm/abstract_template.md",
+  "paper_skeleton_path": "competitions/mcm/paper_skeleton.md",
+  "latex_template_dir": "templates/latex/mcm",
+  "citation_format": "IEEE or APA"
+}

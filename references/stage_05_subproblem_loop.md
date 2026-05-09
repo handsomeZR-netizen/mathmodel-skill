@@ -268,13 +268,71 @@ plt.savefig("figures/Q1_sensitivity.png", dpi=300)
 - G1 子问题各做各 → Step H 子检查点强制
 - G2 子问题模型族突变 → 切换需在 H 显式记录触发条件
 
+## H.2 per-Qi 差异化降级机制 (v3.0 新增)
+
+老逻辑下若 Q1 mean=8.5 / Q2 mean=7.2 / Q3 mean=8.8, 整体 mean=8.2 min=7.2, **技术上 pass 但 Q2 弱被掩盖**。新协议引入 per-Qi 加权聚合 + 差异化降级:
+
+### 聚合规则
+
+```python
+# 加载 decision_log.stages.5.qi_weights (默认 [1.0]*qi_count)
+qi_results = [{qi: 'Q1', min: 8, mean: 8.5}, {qi: 'Q2', min: 7, mean: 7.2}, {qi: 'Q3', min: 8, mean: 8.8}]
+qi_weights = decision_log.stages.5.qi_weights  # e.g. [1.0, 1.5, 1.0] 若 Q2 是题目核心
+
+weighted_mean = Σ(qi.mean × weight) / Σ(weight)
+weighted_min  = min(qi.min for qi in qi_results)
+
+# Qi 状态判定 (单 Qi 独立):
+for qi in qi_results:
+    if qi.min >= 7 and qi.mean >= 8: qi.status = "pass"
+    elif qi.min >= 7:                qi.status = "mark_for_review"   # 该 Qi 单独弱, 但仍可接受
+    else:                            qi.status = "refine"             # 该 Qi 需重做
+```
+
+### Verdict 决策
+
+| 场景 | verdict | 后续 |
+|------|---------|------|
+| 全 Qi pass + weighted_min ≥ 9 + weighted_mean ≥ 9 | `pass_early` | iter-1 早退 |
+| 全 Qi pass + weighted_min ≥ 7 + weighted_mean ≥ 8 | `pass` | 进 stage 6 |
+| 任 Qi mark_for_review + 加权阈值满足 | `pass_with_review` | 进 stage 6, **L2 必读 review_qis** (写入 stage 5 末尾的 L2 触发条件) |
+| 任 Qi refine | `refine_partial` | **只 refine 该 Qi**, 不动其他 Qi (省 token + 时间) |
+| 其他 (含 weighted_mean < 8) | `refine` | 全 stage refine (按老逻辑) |
+
+### 示例
+
+`Q2 mean=7.2 min=7` (mark_for_review) + Q1/Q3 都 pass + weighted_mean=8.2:
+- verdict = `pass_with_review`, review_qis = ["Q2"]
+- decision_log.stages.5.qi_status = {"Q1": "pass", "Q2": "mark_for_review", "Q3": "pass"}
+- L2 在 stage 5 末尾必读 Q2 段, 检查"是否需要 stage 6 顺便重跑 Q2 灵敏度"
+
+`Q2 min=5` (refine) + Q1/Q3 都 pass:
+- verdict = `refine_partial`, refine_qis = ["Q2"]
+- 只重跑 Q2 的 Step A-G; Q1/Q3 不动 (节省 ~60% 时间)
+- iter+=1 仅对 Q2; 老 iter cap 3 仍生效, Q2 三次仍 refine 则 carryover
+
+### 调用脚本
+
+```bash
+# 在所有 Qi 跑完 per-Qi critic 后, 由调度器触发:
+python scripts/score_artifact.py --mode aggregate_qi --qi-results state/qi_results.json
+# qi_results.json schema: {qi_results: [{qi, min, mean, scores}], qi_weights: [...]}
+# 输出: {verdict, weighted_min, weighted_mean, qi_status, review_qis, refine_qis}
+```
+
+### qi_weights 调整时机
+
+默认 `[1.0] * qi_count` 由 stage 1 锁题后初始化。用户可在 stage 5 第一个 Qi 完成时根据题目重要性调整 (e.g., `[1.0, 1.5, 1.0]` 若 Q2 是核心)。调整后写回 `decision_log.stages.5.qi_weights`, 后续聚合按新权重。
+
+---
+
 ## 退出条件 (整个 stage 5)
 
-1. 所有 Qi 通过 per-Qi rubric (全维 ≥7)
+1. 所有 Qi 通过 per-Qi rubric (全维 ≥7) **或** verdict ∈ {pass, pass_with_review} 经 H.2 聚合
 2. Stage-level rubric 全维 ≥7
 3. 复用链满足 (题目允许时强制)
-4. (championship) red-team 一次,针对最弱的 Qi
-5. 触发 L2: 跨阶段回检 stage 3 (模型选择前提是否被结果推翻) + stage 4 (符号一致性)
+4. (championship) red-team 一次,针对最弱的 Qi (优先 review_qis)
+5. 触发 L2: 跨阶段回检 stage 3 (模型选择前提是否被结果推翻) + stage 4 (符号一致性) + **review_qis 列表 (若 verdict=pass_with_review)**
 
 → 跳转 `stage_06_robustness.md`
 

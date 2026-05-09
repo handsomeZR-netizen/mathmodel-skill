@@ -1,0 +1,29 @@
+{
+  "_doc": "电工杯实测分位 — SEED v0.1, 占位。score_artifact.py 注入时强制带 [seed: 阈值未实测] 标记。",
+  "_seed_version": "0.1",
+  "_seed_basis": "历年题目题量 + 公开评审标准估算",
+  "competition": "diangong",
+  "source": {
+    "papers_total": 0,
+    "papers_extracted": 0,
+    "year_range": null,
+    "baked_at": null,
+    "baker": "manual_seed",
+    "status": "seed_v0.1"
+  },
+  "dims": {
+    "abstract_chars":     {"p25": 600, "p50": 800,   "p75": 1000,  "min": 400,  "max": 1200, "mean": 800,   "unit": "char"},
+    "doc_chars_zh":       {"p25": 22000,"p50": 26000,"p75": 30000, "min": 18000,"max": 38000,"mean": 26000, "unit": "char"},
+    "doc_pages":          {"p25": 25,  "p50": 28,    "p75": 32,    "min": 20,   "max": 40,   "mean": 28.0,  "unit": "page"},
+    "main_section_count": {"p25": 6,   "p50": 8,     "p75": 10,    "min": 5,    "max": 14,   "mean": 8.0,   "unit": "count"},
+    "figure_count":       {"p25": 12,  "p50": 18,    "p75": 25,    "min": 8,    "max": 35,   "mean": 18.0,  "unit": "count", "_note": "工程图多"},
+    "table_count":        {"p25": 6,   "p50": 10,    "p75": 14,    "min": 4,    "max": 22,   "mean": 10.0,  "unit": "count"},
+    "formula_count":      {"p25": 18,  "p50": 30,    "p75": 50,    "min": 10,   "max": 80,   "mean": 30.0,  "unit": "count"},
+    "subproblem_count":   {"p25": 6,   "p50": 7,     "p75": 8,     "min": 5,    "max": 9,    "mean": 7.0,   "unit": "count"},
+    "reference_count":    {"p25": 10,  "p50": 15,    "p75": 22,    "min": 6,    "max": 35,   "mean": 15.0,  "unit": "count"}
+  },
+  "quality_signals": {
+    "abstract_quantitative_ratio": null,
+    "_note": "无样本统计。一等奖应含 ≥3 quantitative 工程指标 (kW/kWh/%等)"
+  }
+}

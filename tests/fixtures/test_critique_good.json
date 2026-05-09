@@ -1,12 +1,14 @@
 {
+  "_doc": "正面用例: stage 1 critique with 1_/2_/.../5_ 前缀的 dim key (与 DIM_WHITELIST 对齐). 期望 validate ok, verdict=pass.",
   "stage_id": 1,
   "iteration": 0,
+  "variant": "stage_level",
   "scores": {
-    "three_options_depth": {"name": "三题对比深度", "score": 8, "evidence": "三题各 5 评估点"},
-    "team_strength_match": {"name": "团队优势匹配", "score": 9, "evidence": "选题理由含我们擅长 X"},
-    "risk_identification": {"name": "风险识别", "score": 7, "evidence": "3 风险 + 应对"},
-    "time_feasibility": {"name": "时间可行性", "score": 8, "evidence": "合计 70h"},
-    "decision_record_quality": {"name": "决策记录质量", "score": 8, "evidence": "rationale 5 行依据"}
+    "1_three_options_depth": {"name": "三题对比深度", "score": 8, "evidence": "三题各 5 评估点"},
+    "2_team_strength_match": {"name": "团队优势匹配", "score": 9, "evidence": "选题理由含我们擅长 X"},
+    "3_risk_identification": {"name": "风险识别", "score": 7, "evidence": "3 风险 + 应对"},
+    "4_time_feasibility": {"name": "时间可行性", "score": 8, "evidence": "合计 70h"},
+    "5_decision_record_quality": {"name": "决策记录质量", "score": 8, "evidence": "rationale 5 行依据"}
   },
   "min_score": 7,
   "mean_score": 8.0,

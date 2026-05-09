@@ -29,17 +29,23 @@ elif critique_v0.verdict == "block":
 ### 2. Critic Prompt 模板
 
 ```
-You are a strict CUMCM grader for stage {stage_id} ({stage_name}).
+You are a strict {competition_label} grader for stage {stage_id} ({stage_name}).
 Score the artifact below against the 5-dim rubric.
 
-Rubric (from `references/rubrics.md`):
+Competition: {competition} (cumcm | mcm | diangong)
+Task type: {task_type} (e.g. A_optimization, C_data, F_policy)
+{task_type_weighting_hint}   # 见 §3.6, e.g. "重点考察 X (×1.4), 次要 Y (×0.8)"
+
+Rubric (from `references/rubrics.md` + `competitions/{competition}/rubric_overlay.json`):
 {rubric_5_dims}
 
-Reference patterns (from `references/winning_patterns.md`):
+Reference patterns (from `competitions/{competition}/winning_patterns.md`):
 {relevant_patterns}
 
-Anti-patterns to check (from `references/anti_patterns.md`):
+Anti-patterns to check (from `competitions/{competition}/anti_patterns.md`):
 {relevant_anti_patterns}
+
+{empirical_hint}   # 见 §3.5, 评硬阈值时拉 competitions/{competition}/empirical.json 注入
 
 Artifact:
 {artifact_content_or_path}
@@ -68,7 +74,14 @@ OUTPUT EXACTLY THIS JSON, NO OTHER TEXT:
     }
     // 0-5 个
   ],
-  "verdict": "pass_early" | "pass" | "refine" | "block"
+  "evidence_metrics": {            // 可选, 见 §3.5; 评硬阈值维度时填.
+    "abstract_chars": <int>,        // critic 实测的 artifact 摘要字数
+    "formula_count": <int>,         // 公式数, 等等
+    "figure_count": <int>,
+    "reference_count": <int>
+    // 仅评 stage 8 / 9 时填; 其他 stage 留空
+  },
+  "verdict": "pass_early" | "pass" | "pass_with_review" | "refine" | "refine_partial" | "block"
 }
 ```
 
@@ -79,26 +92,80 @@ OUTPUT EXACTLY THIS JSON, NO OTHER TEXT:
 **优先级从高到低 (顺序不可变, 否则 pass_early 永远不触发)**:
 
 ```python
-def verdict(scores, issues):
-    min_s = min(scores.values())
-    mean_s = mean(scores.values())
+def verdict(scores, issues, weights=None):
+    """
+    weights: 题型 dim 权重表 (e.g. config/dim_weights.json[cumcm][A_optimization]["3"]).
+             dim 不在表中时按 1.0 处理. 加权 mean = Σ(s_i × w_i) / Σ(w_i).
+             min 不加权 (仍是 'any dim too low' 触发器).
+             权重 clamp 到 [0.7, 1.5] 防过激.
+    """
+    raw_min = min(scores.values())
+    if weights:
+        weighted_mean = sum(s * weights.get(d, 1.0) for d, s in scores.items()) / sum(weights.get(d, 1.0) for d in scores)
+    else:
+        weighted_mean = mean(scores.values())
     high_issues = [i for i in issues if i["severity"] == "high"]
-    
+
     if len(high_issues) >= 1:
-        return "block"          # 含高严重 issue, 暂停 skill
-    if min_s >= 9 and mean_s >= 9:
-        return "pass_early"     # iter-1 早退, 节省 token
-    if min_s >= 7 and mean_s >= 8:
-        return "pass"           # 进下一阶段
-    return "refine"             # section-patch 精修, iter+=1
+        return "block"               # 含高严重 issue, 暂停 skill
+    if raw_min >= 9 and weighted_mean >= 9:
+        return "pass_early"          # iter-1 早退, 节省 token
+    if raw_min >= 7 and weighted_mean >= 8:
+        return "pass"                # 进下一阶段
+    return "refine"                  # section-patch 精修, iter+=1
 ```
+
+**Stage 5 多 Qi 场景额外 verdict** (由 `compute_stage5_verdict` 聚合, 见 §6 Stage 5):
+| verdict | 触发条件 | 行为 |
+|---------|---------|------|
+| `pass_with_review` | 任 Qi.min ≥ 7 且 Qi.mean < 8 (mark_for_review), 但加权 stage_min ≥ 7 且 weighted_mean ≥ 8 | 进 stage 6, L2 必读 review_qis |
+| `refine_partial` | 任 Qi.min < 7, 但其他 Qi 已 pass | 只 refine 该 Qi, 不动其他 Qi |
 
 **carryover 规则** (在 iter == max_iter 即 3 次后由调度器决定, critic 不直接输出此 verdict):
 ```
-if iter == 3 and verdict == "refine": → 标记 carryover, 进下一阶段, L2 处理
+if iter == 3 and verdict in ("refine", "refine_partial"): → 标记 carryover, 进下一阶段, L2 处理
 ```
 
-此定义与 `SKILL.md` "收敛准则" / `rubrics.md` 阈值汇总 / `scripts/score_artifact.py compute_verdict` **必须完全一致**。
+此定义与 `SKILL.md` "收敛准则" / `rubrics.md` 阈值汇总 / `scripts/score_artifact.py compute_verdict` + `compute_stage5_verdict` **必须完全一致**。
+
+### 3.5. 实测分位注入协议 (empirical injection)
+
+L1 critic 评硬阈值维度时 (字数 / 公式数 / 图表数 / 引用数), evidence 字段不再写"推荐 600-900 字"这种估计值, 改注入 `competitions/<competition>/empirical.json` 的实测 p25/p50/p75:
+
+**critic 输入扩展**: `score_artifact.py` 在 evaluate 时若 critique 含 `evidence_metrics: {dim_key: value}`, 自动调用 `inject_evidence(dim_key, value, empirical, by_topic)`。
+
+**注入格式**:
+```
+abstract_chars: value=720, p50=992, IQR=[748, 1146] (by topic A), status=低于 p25
+```
+
+种子版本 (mcm / diangong empirical.source.status="seed_v0.1") 自动追加 `[seed: 阈值未实测分位]` 标记, critic 见此应**弱化数值评判, 强化模式匹配**。
+
+**字段映射** (示例 stage 8):
+| critic dim | empirical.json key | 由 by_topic 进一步细化 |
+|---|---|---|
+| 1_abstract_5_paragraph (字数维度) | abstract_chars | 是 (A/B/C/D/E/F) |
+| 3_formulas_figures_citations (公式数) | formula_count | 是 |
+| 3_formulas_figures_citations (图数) | figure_count | 是 |
+| 3_formulas_figures_citations (引用数) | reference_count | 否 |
+
+### 3.6. 题型加权协议 (task_type dim weights)
+
+`decision_log.task_type` 由 stage 1 选题后填入 (e.g. `A_optimization` / `C_data` / `mcm:F_policy`)。`score_artifact.py` 加载 `config/dim_weights.json[competition][task_type]` 拿到 stage→dim→weight 表, 应用到 verdict 计算。
+
+**critic prompt 扩展** (在 stage 评分时, prompt 模板自动附加):
+```
+本题为 {competition}/{task_type}, 重点考察:
+- {dim_with_high_weight_1} (×{weight_1})
+- {dim_with_high_weight_2} (×{weight_2})
+次要: {dim_with_low_weight_1} (×{weight_1})
+其他维度按默认 1.0 评估。
+```
+
+**示例** (cumcm/C_data, stage 6):
+> 本题为 cumcm/C_data, 重点考察: 多变量灵敏度 (×1.4), 输出完备性 (×1.2). 其他维度按默认 1.0 评估。
+
+权重 clamp 到 [0.7, 1.5] 防止过激扭曲分布。`task_type=default` 全 1.0, 等价老逻辑。
 
 ### 4. Diff-only 精修协议
 
@@ -237,6 +304,27 @@ Critic 在 `issues` 数组中可以直接引用 anti_pattern ID:
 关键: G1, G2
 
 **Stage 5 调用顺序**: 先对每个 Qi 跑 per-Qi critic (写入 `decision_log.scores["5_per_qi"]`, 标 qi_id), 全部 Qi pass 后再跑 stage-level critic (写入 `decision_log.scores["5"]`)。两轨互不覆盖。
+
+**Stage 5 per-Qi 加权聚合** (v3.0 新增): 当所有 per-Qi critic 跑完, 调用 `score_artifact.py --mode aggregate_qi --qi-results qi_results.json`:
+
+```python
+# 输入: qi_results = [{qi: 'Q1', min: 8, mean: 8.5}, {qi: 'Q2', min: 7, mean: 7.2}, {qi: 'Q3', min: 8, mean: 8.8}]
+#      qi_weights = [1.0, 1.0, 1.0]   # 默认均匀, decision_log.stages.5.qi_weights 可定制
+# 聚合规则:
+weighted_mean = Σ(qi.mean × weight) / Σ(weight)   # 8.17
+weighted_min  = min(qi.min for qi in qi_results)  # 7
+# Qi 状态判定:
+for qi in qi_results:
+    if qi.min >= 7 and qi.mean >= 8: qi.status = "pass"
+    elif qi.min >= 7:                qi.status = "mark_for_review"   # 该 Qi 需复核
+    else:                            qi.status = "refine"            # 该 Qi 需重做
+# verdict 决策:
+if any(refine):       verdict = "refine_partial"   # 只 refine 标记 Qi, 不动其他
+elif any(review):     verdict = "pass_with_review" if weighted 满足阈值 else "refine"
+else:                 verdict = "pass"             # 全 Qi pass, 进 stage 6
+```
+
+**差异化降级**: per-Qi mark_for_review 不阻塞其他 Qi (即"Q2 单独 refine 不动 Q1/Q3"), 显著优于老的"全 stage 平均掩盖单 Qi 弱点"。
 
 #### Stage 6
 ```json

@@ -1,0 +1,55 @@
+{
+  "_doc": "CUMCM 国赛特化评分维度 overlay。叠加在 references/rubrics.md 通用基础维度之上。score_artifact.py 加载后合并到 DIM_WHITELIST。",
+  "competition": "cumcm",
+  "version": "1.0",
+  "stage_overrides": {
+    "8": {
+      "_note": "国赛 stage 8 写作维度: 强制 5 段式摘要 + GB/T 7714 + 中文写作规范",
+      "dims": {
+        "1_abstract_5_paragraph": {
+          "describe": "摘要必须满足 5 段式 (背景/方法/结果/亮点/关键词), 字数 IQR [748, 1146] 中位 992 (实测自 91 篇)",
+          "hard_threshold": {"abstract_chars": {"min": 600, "max": 1300, "empirical_ref": "abstract_chars"}},
+          "anchor_count_min": 4
+        },
+        "2_section_completeness": {
+          "describe": "8 大章节齐全: 摘要/问题重述/分析/假设/符号/模型/灵敏度/评价/参考文献/附录"
+        },
+        "3_formulas_figures_citations": {
+          "describe": "公式 IQR [12, 67], 图 IQR [5, 20], 引用 GB/T 7714 格式, 文献数 IQR [16, 63]",
+          "empirical_refs": ["formula_count", "figure_count", "reference_count"]
+        },
+        "4_language_quality": {
+          "describe": "中文学术规范, 句长 25-45 字, 中英混排空格"
+        },
+        "5_visual_consistency": {
+          "describe": "每子问题视觉三件套 (流程图 + 结果图 + 灵敏度图), 字号 / 配色统一"
+        }
+      }
+    },
+    "9": {
+      "_note": "国赛终审强调 anti_patterns 32 条 + cumcmthesis 编译 + GB/T 7714",
+      "dims": {
+        "1_anti_pattern_coverage": {
+          "describe": "对照 competitions/cumcm/anti_patterns.md 32 条逐条核查, 一等奖应 ≤ 3 条触发"
+        },
+        "5_pdf_compile_clean": {
+          "describe": "xelatex 三编 0 error 0 warning, 字符越界检查"
+        }
+      }
+    }
+  },
+  "panel_personas": [
+    {"id": "math_rigor",      "label": "数学严谨派", "weight": 1.2, "focus": "证明 + 假设支撑 + 收敛性"},
+    {"id": "model_innovation","label": "模型创新派", "weight": 1.0, "focus": "命名变体 + 跨学科 + 改进幅度"},
+    {"id": "code_correctness","label": "代码正确派", "weight": 1.0, "focus": "数值精度 + 边界 + 复现性"},
+    {"id": "writing_clarity", "label": "写作呈现派", "weight": 1.0, "focus": "5 段式 + 物理意义 + 视觉"},
+    {"id": "judge_30s",       "label": "评委 30 秒派", "weight": 1.5, "focus": "首屏即抓 + 摘要 + 结果图"}
+  ],
+  "anti_pattern_path": "competitions/cumcm/anti_patterns.md",
+  "phrase_bank_path": "competitions/cumcm/phrase_bank.md",
+  "winning_patterns_path": "competitions/cumcm/winning_patterns.md",
+  "abstract_template_path": "competitions/cumcm/abstract_template.md",
+  "paper_skeleton_path": "competitions/cumcm/paper_skeleton.md",
+  "latex_template_dir": "templates/latex/cumcm/cumcmthesis",
+  "citation_format": "GB/T 7714"
+}

@@ -1,0 +1,61 @@
+{
+  "_doc": "CUMCM 国赛题号体系 + 题型 → dim 权重映射 hint。stage 1 选题时加载, score_artifact.py 用 task_type 字段查 config/dim_weights.json。",
+  "competition": "cumcm",
+  "official_name": "全国大学生数学建模竞赛",
+  "duration_h": 72,
+  "team_size": 3,
+  "language": "zh-CN",
+  "compiler": "xelatex",
+  "default_subproblem_count": 4,
+  "subproblem_count_iqr": [3, 5],
+  "topics": {
+    "A": {
+      "label": "A 题",
+      "category": "本科组-理工",
+      "primary_type": "optimization",
+      "task_type_key": "A_optimization",
+      "typical_problems": ["物理建模", "工程优化", "连续系统"],
+      "expected_subproblem_count": [3, 5]
+    },
+    "B": {
+      "label": "B 题",
+      "category": "本科组-理工",
+      "primary_type": "evaluation",
+      "task_type_key": "B_evaluation",
+      "typical_problems": ["评价指标体系", "AHP/熵权/TOPSIS", "组合赋权"],
+      "expected_subproblem_count": [3, 5]
+    },
+    "C": {
+      "label": "C 题",
+      "category": "本科组-数据/统计",
+      "primary_type": "data_analysis",
+      "task_type_key": "C_data",
+      "typical_problems": ["数据预处理", "回归/时序/聚类", "异常检测"],
+      "expected_subproblem_count": [4, 6]
+    },
+    "D": {
+      "label": "D 题",
+      "category": "专科组-工程",
+      "primary_type": "industrial",
+      "task_type_key": "D_industrial",
+      "typical_problems": ["工业流程", "调度", "控制系统"],
+      "expected_subproblem_count": [3, 5]
+    },
+    "E": {
+      "label": "E 题",
+      "category": "专科组-创新",
+      "primary_type": "creative",
+      "task_type_key": "E_creative",
+      "typical_problems": ["开放性建模", "社会问题", "跨学科"],
+      "expected_subproblem_count": [3, 5]
+    },
+    "F": {
+      "label": "F 题",
+      "category": "专科组-理工 (历史保留)",
+      "primary_type": "evaluation",
+      "task_type_key": "B_evaluation",
+      "typical_problems": ["评价类", "近年合并入 B"],
+      "expected_subproblem_count": [3, 5]
+    }
+  }
+}

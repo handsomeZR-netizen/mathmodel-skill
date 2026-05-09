@@ -1,6 +1,10 @@
 {
-  "_schema_version": "2.0",
-  "_doc": "跨阶段决策日志。每个阶段开头读、结尾写。L2 回检读此文件寻找跨阶段冲突。schema 与 stage_NN.md 实际写入字段一一对齐。",
+  "_schema_version": "3.0",
+  "_doc": "跨阶段决策日志。每个阶段开头读、结尾写。L2 回检读此文件寻找跨阶段冲突。schema 与 stage_NN.md 实际写入字段一一对齐。v3.0 加 competition / task_type / qi_weights 三字段支持三竞赛 + per-Qi 加权聚合。",
+  "competition": "cumcm",
+  "task_type": null,
+  "_competition_doc": "enum: cumcm | mcm | diangong (默认 cumcm 兼容老用户). 由 stage 0 kickoff 第一问填入。score_artifact.py / stage 文件按此字段 dispatch competitions/<comp>/* 加载。",
+  "_task_type_doc": "题型代码 (e.g. cumcm:A_optimization, mcm:A_continuous, diangong:A_engineering). 由 stage 1 选题后填入。score_artifact.py 用此字段查 config/dim_weights.json。null 时使用 default 全 1.0 权重 = 等价老逻辑。",
   "problem": null,
   "problem_meta": {
     "year": null,
@@ -72,6 +76,12 @@
     },
     "5": {
       "_label": "subproblem_loop",
+      "qi_count": null,
+      "_qi_count_doc": "题目子问题总数, 由 stage 1 选题后填入. cumcm IQR [3,5], mcm [3,5], diangong [6,8].",
+      "qi_weights": [],
+      "_qi_weights_doc": "per-Qi 加权聚合权重数组, 长度=qi_count. 默认均匀 [1.0]*qi_count. score_artifact.py compute_stage5_verdict 用此重加权 mean.",
+      "qi_status": {},
+      "_qi_status_doc": "{Q1: pass | mark_for_review | refine, ...}. mark_for_review = 该 Qi 单独弱但全 stage 仍 pass, L2 必读.",
       "sub_problems": {
         "_template": {
           "model_name": "",
@@ -138,7 +148,7 @@
     }
   },
   "scores": {
-    "_doc": "{stage_key: [{iteration, scores:{dim:score}, min, mean, verdict, ts, qi_id?}]}. stage 5 双轨: '5' 存 stage-level, '5_per_qi' 存 per-Qi (entry 含 qi_id). dim key 必须命中 feedback_layer1_critic.md §6 (1_xxx/2_xxx/.../5_xxx) 白名单",
+    "_doc": "{stage_key: [{iteration, scores:{dim:score}, min, mean, verdict, ts, qi_id?, weighted_mean?, review_qis?, refine_qis?}]}. stage 5 双轨: '5' 存 stage-level, '5_per_qi' 存 per-Qi (entry 含 qi_id). v3.0 verdict 扩展含 'pass_with_review' (任 Qi mark_for_review 但整体 pass) 与 'refine_partial' (仅部分 Qi 需 refine, 其他 Qi 保留). dim key 必须命中 feedback_layer1_critic.md §6 (1_xxx/2_xxx/.../5_xxx) 白名单, 或竞赛 rubric_overlay.json 中 stage_overrides 定义的特化 dim",
     "0": [],
     "1": [],
     "2": [],

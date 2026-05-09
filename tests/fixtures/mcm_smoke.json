@@ -1,0 +1,19 @@
+{
+  "_doc": "Phase 10 验证 fixture: mcm 加载 smoke. stage 3 评分, task_type=A_continuous. 验证 score_artifact.py 加载 competitions/mcm/rubric_overlay.json + dim_weights.json[mcm][A_continuous] 不报错.",
+  "_test_target": "score_artifact.py load_competition_config + validate_critique",
+  "_expected_outcome": "validate ok, verdict=pass (weighted mean >= 8)",
+  "stage_id": 3,
+  "iteration": 0,
+  "variant": "stage_level",
+  "scores": {
+    "1_candidate_diversity": {"score": 8, "evidence": "3 candidates: PDE / Markov / NN, structurally different"},
+    "2_selection_rationale": {"score": 8, "evidence": "each candidate has fit + reject reason"},
+    "3_naming_variant": {"score": 9, "evidence": "Time-Aware Bellman is novel extension"},
+    "4_solver_feasibility": {"score": 8, "evidence": "Gurobi available, runtime estimated < 5min"},
+    "5_literature_support": {"score": 7, "evidence": "3 references cited, 2 from past 3 years"}
+  },
+  "min_score": 7,
+  "mean_score": 8.0,
+  "issues": [],
+  "verdict": "pass"
+}

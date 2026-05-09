@@ -1,0 +1,19 @@
+{
+  "_doc": "Phase 10 验证 fixture: diangong 加载 smoke. stage 5 stage-level, task_type=A_engineering. 验证 score_artifact.py 加载 competitions/diangong/rubric_overlay.json + dim_weights.json[diangong][A_engineering] 不报错.",
+  "_test_target": "score_artifact.py load_competition_config + validate_critique",
+  "_expected_outcome": "validate ok, evidence 字段含 [seed: 阈值未实测分位] 标记 (因 diangong empirical=seed v0.1)",
+  "stage_id": 5,
+  "iteration": 0,
+  "variant": "stage_level",
+  "scores": {
+    "1_subproblem_completeness": {"score": 8, "evidence": "7 子问全跑完"},
+    "2_cross_reference_chain": {"score": 8, "evidence": "Q3 引用 Q1 负荷预测"},
+    "3_symbol_consistency": {"score": 8, "evidence": "全 Qi 用同一套 stage 4 符号"},
+    "4_visual_density": {"score": 7, "evidence": "每 Qi ≥ 2 工程图 (单线图 + 时序)"},
+    "5_time_budget": {"score": 7, "evidence": "stage 5 总耗 35h, 预算 36h"}
+  },
+  "min_score": 7,
+  "mean_score": 7.6,
+  "issues": [],
+  "verdict": "refine"
+}

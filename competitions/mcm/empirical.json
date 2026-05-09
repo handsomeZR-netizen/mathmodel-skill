@@ -1,0 +1,28 @@
+{
+  "_doc": "MCM 实测分位 — SEED v0.1, 占位。score_artifact.py 注入时强制带 [seed: 阈值取自 COMAP guidelines, 未实测] 标记。",
+  "_seed_version": "0.1",
+  "_seed_basis": "COMAP scoring rubric + 已发表 MCM 备赛教材共识",
+  "competition": "mcm",
+  "source": {
+    "papers_total": 0,
+    "papers_extracted": 0,
+    "year_range": null,
+    "baked_at": null,
+    "baker": "manual_seed",
+    "status": "seed_v0.1"
+  },
+  "dims": {
+    "summary_words":      {"p25": 230, "p50": 280, "p75": 340, "min": null, "max": null, "mean": null, "unit": "word"},
+    "doc_pages":          {"p25": 22,  "p50": 28,  "p75": 35,  "min": 18,   "max": 50,   "mean": 28.0, "unit": "page"},
+    "main_section_count": {"p25": 7,   "p50": 9,   "p75": 11,  "min": 6,    "max": 14,   "mean": 9.0,  "unit": "count"},
+    "figure_count":       {"p25": 8,   "p50": 14,  "p75": 22,  "min": 4,    "max": 30,   "mean": 14.0, "unit": "count"},
+    "table_count":        {"p25": 4,   "p50": 7,   "p75": 12,  "min": 2,    "max": 20,   "mean": 7.0,  "unit": "count"},
+    "formula_count":      {"p25": 15,  "p50": 30,  "p75": 50,  "min": 5,    "max": 80,   "mean": 30.0, "unit": "count"},
+    "reference_count":    {"p25": 12,  "p50": 18,  "p75": 25,  "min": 8,    "max": 40,   "mean": 18.0, "unit": "count"},
+    "letter_words":       {"p25": 350, "p50": 500, "p75": 700, "min": 200,  "max": 1000, "mean": 500.0,"unit": "word", "_note": "D/E/F 题 Letter to Policymakers, 1-2 页"}
+  },
+  "quality_signals": {
+    "summary_quantitative_ratio": null,
+    "_note": "无样本统计。Outstanding 普遍含 ≥3 quantitative results 在 summary"
+  }
+}

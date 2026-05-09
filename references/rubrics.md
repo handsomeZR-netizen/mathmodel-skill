@@ -1,22 +1,53 @@
 # 评分细则 (rubrics)
 
-> 国赛官方评分维度 + 每个阶段的内部 5 维 rubric。L1 Critic 直接 JSON 化使用。
+> 三竞赛通用 5 维 rubric (国赛 / 美赛 / 电工杯 共享 stage 0-7 框架, stage 8/9 由 `competitions/<comp>/rubric_overlay.json` 特化)。L1 Critic 直接 JSON 化使用。
 
 ---
 
-## 国赛官方评分维度 (论文最终态,占总分权重)
+## Overlay 协议 (v3.0)
 
-来源: 国赛组委会公布 + 评委复盘文章。
+| 层级 | 来源 | 加载 |
+|------|------|------|
+| 通用基础 | 本文件 stage 0-9 表格 | 三竞赛共享 |
+| 竞赛特化 dim 名 | `competitions/<comp>/rubric_overlay.json` 的 `dim_whitelist` | score_artifact.py 自动合并 |
+| 题型 dim 权重 | `config/dim_weights.json[<comp>][<task_type>]` | compute_verdict 加权 mean |
+| 实测分位 | `competitions/<comp>/empirical.json` | inject_evidence 注入 evidence |
+
+`task_type` 由 stage 1 选题后填入 decision_log; null 时 default 全 1.0 等价老逻辑。
+
+---
+
+## 三竞赛官方评分维度对照
+
+### CUMCM 国赛 (来源: 组委会公布 + 评委复盘)
 
 | 维度 | 权重 | 关键检查项 |
 |------|-----|----------|
-| **摘要质量** | 30% | 5 段结构 / 量化结果 / 创新表述 / 字数 600-900 |
+| **摘要质量** | 30% | 5 段结构 / 量化结果 / 创新表述 / 字数 IQR [748, 1146] |
 | **模型建立** | 25% | 与问题契合 / 假设有支撑 / 数学严谨 / 命名变体 |
 | **求解与结果** | 20% | 算法合理 / 代码可复现 / 结果可视化 / 物理意义 |
 | **写作呈现** | 15% | 章节完整 / 公式编号规范 / 图表清晰 / 语言流畅 |
 | **创新性** | 10% | 模型变体命名 / 跨学科融合 / 子问题复用 |
 
-(注: 不同年份权重微调 ±5%,但摘要 ≥25%、模型 ≥20% 是稳定的。)
+### MCM/ICM 美赛 (来源: COMAP scoring rubric)
+
+| 维度 | 关键检查项 |
+|------|----------|
+| **1-page Summary** | 250-350 词 / ≥3 quantitative / takeaway / 单页 |
+| **Approach & Modeling** | novel approach / assumption support / 严谨 |
+| **Solution & Results** | 算法 / 复现性 / sensitivity 是独立大节 |
+| **Communication** | 写作清晰 / 图表 self-contained / 术语精确 |
+| **Letter** (D/E/F) | actionable recommendations / plain language / caveat |
+
+### 电工杯 (来源: 公开评审标准估算, seed v0.1)
+
+| 维度 | 关键检查项 |
+|------|----------|
+| **工程实用性** | 落地可行 / 投资估算 / 阶段实施 |
+| **物理意义** | 数值带 kW/kWh/% / 工程语义 |
+| **数据完整性** | 题目附件全部使用 / 预处理章节 |
+| **多场景对比** | ≥3 场景 / 工程参数扰动 |
+| **写作呈现** | GB/T 7714 / 工程惯用图表 |
 
 ---
 
@@ -204,10 +235,14 @@ L2 触发: 末尾跨阶段回检 stage 3 的模型选择前提是否被本节结
 | verdict | 触发条件 | 行为 |
 |---------|---------|-----|
 | `block` | issues 含 ≥1 high-severity | 暂停 skill, 用户介入 |
-| `pass_early` | min ≥ 9 AND mean ≥ 9 | iter-1 早退, 节省 token |
-| `pass` | min ≥ 7 AND mean ≥ 8 | 进下一阶段 |
+| `pass_early` | raw_min ≥ 9 AND weighted_mean ≥ 9 | iter-1 早退, 节省 token |
+| `pass` | raw_min ≥ 7 AND weighted_mean ≥ 8 | 进下一阶段 |
+| `pass_with_review` *(stage 5)* | 任 Qi mark_for_review 但加权阈值满足 | 进 stage 6, L2 必读 review_qis |
 | `refine` | 其他 | section-patch 精修, iter+=1 (cap 3) |
-| `carryover` | iter == 3 仍 refine | 进下一阶段, 标记由 L2 处理 |
+| `refine_partial` *(stage 5)* | 任 Qi.min < 7, 但其他 Qi 已 pass | 仅 refine 标记 Qi, 不动其他 |
+| `carryover` | iter == 3 仍 refine 或 refine_partial | 进下一阶段, 标记由 L2 处理 |
+
+`weighted_mean` = Σ(s_i × w_i) / Σ(w_i), 其中 w_i 来自 `config/dim_weights.json` 题型加权 (clamp [0.7, 1.5]); `task_type=default` 全 1.0 等价老逻辑。
 
 **与等级对应** (用于评估 / 不直接驱动 verdict):
 | 大致等级 | 单维最低 | 均值 |
@@ -219,9 +254,9 @@ L2 触发: 末尾跨阶段回检 stage 3 的模型选择前提是否被本节结
 
 ---
 
-## 与 winning_patterns / anti_patterns / empirical_distribution 的对应
+## 与 winning_patterns / anti_patterns / empirical 的对应
 
-本文件 rubric 项 ↔ `winning_patterns.md` 段落 (各 stage rubric 表后已 inline 标注):
+本文件 rubric 项 ↔ `competitions/<comp>/winning_patterns.md` 段落 (路径按 decision_log.competition dispatch):
 - abstract.* (stage 8 dim 1) → patterns §1, §9 + anti_patterns §A
 - paper.section_completeness (stage 8 dim 2) → patterns §2 + anti_patterns §I
 - paper.figure_density → patterns §3 + anti_patterns §E
@@ -231,5 +266,5 @@ L2 触发: 末尾跨阶段回检 stage 3 的模型选择前提是否被本节结
 - sensitivity.multivariate (stage 6 dim 1) → patterns §7 + anti_patterns §F
 - evaluation.limitations_real (stage 7 dim 2) → patterns §8 + anti_patterns §H
 
-**硬阈值** (字数/图表数/公式数) 评分时, evidence 字段引用 `empirical_distribution.md` 实测 p25/p50/p75 而非估计值。
+**硬阈值** (字数/图表数/公式数) 评分时, evidence 字段由 `score_artifact.py inject_evidence` 注入 `competitions/<comp>/empirical.json` 实测 p25/p50/p75 (国赛 91 篇真烘焙); MCM / 电工杯 seed v0.1 注入时带 `[seed: 阈值未实测分位]` 标记, critic 应弱化数值评判, 强化模式匹配。
 - evaluation.real_critique → patterns §8

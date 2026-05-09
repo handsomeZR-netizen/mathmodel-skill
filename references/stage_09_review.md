@@ -1,24 +1,24 @@
 ---
 stage: 9
 name: review
-duration_h: 2-4
-inputs: [paper.tex, decision_log_full]
+duration_h: 2-6
+inputs: [paper.tex, decision_log_full, decision_log.competition]
 outputs: [stage.9.{anti_patterns_check, panel_scores, weakest_section, redo_log, red_team_record, final_pdf_path, submission_ready}]
-loads_reference: [anti_patterns.md, feedback_layer3_panel.md]
-loads_template: [cumcmthesis/]
+loads_reference: [competitions/<competition>/anti_patterns.md, competitions/<competition>/rubric_overlay.json, feedback_layer3_panel.md]
+loads_template: [templates/latex/<competition>/]
 feedback: [L1, L3_5_panel, red_team_in_championship]
 next: SUBMIT
 ---
 
-# Stage 9 — 终稿审核 + 视觉化润色 + 5 视角 Panel
+# Stage 9 — 终稿审核 + 视觉化润色 + Panel 多视角评审
 
-**时长**: 2-4h | **反馈层**: L1 + L3 panel (终局多视角) | **冲刺最后一步**
+**时长**: 2-6h (cumcm 2-4 / mcm 4-6 / diangong 2-4) | **反馈层**: L1 + L3 panel | **冲刺最后一步**
 
 ---
 
 ## 目标
 
-把 stage 8 的论文从 "完整可读" 推到 "评委想给一等奖"。这一步的核心是**多视角对抗审查 + 反模式逐条对照**。
+把 stage 8 的论文从 "完整可读" 推到 "评委想给最高奖"。核心是**多视角对抗审查 + 反模式逐条对照** (按 competition 切换 anti_patterns 与 panel personas)。
 
 ---
 
@@ -27,7 +27,9 @@ next: SUBMIT
 - `paper.tex` (stage 8 产出)
 - 全部 figures/ tables/
 - decision_log 全部
-- `references/anti_patterns.md` (逐条对照)
+- **按 competition 加载** (路径: `<skill>/competitions/<decision_log.competition>/`):
+  - `anti_patterns.md` (逐条对照 — cumcm 32 条 / mcm seed 15 条 / diangong seed 10 条)
+  - `rubric_overlay.json` 的 `panel_personas` (panel 5 视角 — 三竞赛各异)
 
 ## 产出
 

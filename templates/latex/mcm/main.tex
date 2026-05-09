@@ -1,0 +1,150 @@
+% SEED v0.1 — MCM/ICM 通用 LaTeX 模板 (基于 article + 常见 MCM 备赛模板共识)
+% 用法: 由 scripts/render_paper.py --competition mcm 调用
+% 编译: pdflatex main.tex (三编)
+% 字体: 默认 Computer Modern; 若需 Times Roman 取消 \usepackage{mathptmx} 注释
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{cite}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+% \usepackage{mathptmx}  % uncomment for Times Roman
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+    citecolor=blue,
+}
+
+\lstset{
+    basicstyle=\small\ttfamily,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    showstringspaces=false,
+}
+
+% Header / Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Team \#XXXX}
+\fancyhead[R]{Page \thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\usepackage{lastpage}
+
+% Title spacing
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+\titlespacing*{\subsection}{0pt}{10pt}{4pt}
+
+\begin{document}
+
+% ===== Cover Page =====
+\begin{titlepage}
+\begin{center}
+\vspace*{2cm}
+\textbf{\LARGE 2026 MCM/ICM Summary Sheet} \\[1cm]
+{\large Problem Chosen: \textbf{A}} \\[0.5cm]
+{\large Team Control Number: \textbf{XXXX}} \\[2cm]
+{\Huge \textbf{TITLE OF YOUR PAPER}} \\[2cm]
+\end{center}
+
+% ===== 1-Page Summary =====
+\section*{Summary}
+
+% TODO: 1-page summary, 250-350 words. Filled by stage 8 output.
+% Anchors: problem framing / approach / key quantitative results (>=3) / caveat / bold takeaway
+
+\textbf{Keywords:} keyword1, keyword2, keyword3, keyword4, keyword5
+
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+% ===== Body =====
+
+\section{Introduction}
+
+% TODO: 1.5-2 pages. Background / Problem Restatement / Lit Review / Our Approach / Outline.
+
+\subsection{Background and Motivation}
+
+\subsection{Problem Restatement}
+
+\subsection{Literature Review}
+
+\subsection{Our Approach}
+
+\subsection{Outline}
+
+\section{Assumptions and Justifications}
+
+% TODO: 5-10 assumptions, table format.
+
+\section{Notation}
+
+% TODO: symbol table.
+
+\section{Model Development}
+
+% TODO: 5-10 pages, sub-problems.
+
+\subsection{Sub-problem 1}
+
+\subsection{Sub-problem 2}
+
+\section{Solution and Results}
+
+% TODO: 4-8 pages.
+
+\section{Sensitivity and Robustness Analysis}
+
+% TODO: multivariate (not OAT). LHS or Sobol.
+
+\section{Strengths and Weaknesses}
+
+\subsection{Strengths}
+
+\subsection{Weaknesses}
+
+\section{Conclusion}
+
+\bibliographystyle{ieeetr}
+\bibliography{references}
+
+% ===== Letter to Policymakers (D/E/F only) =====
+\newpage
+\section*{Letter to Policymakers}
+\addcontentsline{toc}{section}{Letter to Policymakers}
+
+% TODO: Only for D/E/F problems. 1-2 pages, plain language, 3 actionable recommendations.
+
+% ===== Appendices =====
+\appendix
+\section{Code Listing}
+
+% TODO: full code listing or GitHub URL.
+
+\section{Parameter Values}
+
+% TODO: single table of all parameters used.
+
+\end{document}

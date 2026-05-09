@@ -1,35 +1,41 @@
 ---
 stage: 8
 name: writing
-duration_h: 12-16
-inputs: [decision_log.stages.0-7]
+duration_h: 12-30
+inputs: [decision_log.stages.0-7, decision_log.competition, decision_log.task_type]
 outputs: [stage.8.{section_word_counts, figures_per_subproblem, tables_per_subproblem, abstract_drafts, anchor_phrase_hits, danger_phrase_hits}, paper.tex]
-loads_reference: [winning_patterns.md, phrase_bank.md, anti_patterns.md§A_I]
-loads_template: [paper_skeleton.md, abstract_template.md, cumcmthesis/]
+loads_reference: [competitions/<competition>/winning_patterns.md, competitions/<competition>/phrase_bank.md, competitions/<competition>/anti_patterns.md, competitions/<competition>/empirical.json]
+loads_template: [competitions/<competition>/paper_skeleton.md, competitions/<competition>/abstract_template.md, templates/latex/<competition>/]
 feedback: [L1, L2_at_end]
 next: stage_09_review
 ---
 
 # Stage 8 — 论文写作 (摘要最后写)
 
-**时长**: 12-16h | **反馈层**: L1 | **占整个 skill 时间约 25%**
+**时长**: 12-30h (cumcm 12-16 / mcm 25-30 / diangong 16-20) | **反馈层**: L1 | **占整个 skill 时间约 25-30%**
 
 ---
 
 ## 目标
 
-把前面 0-7 阶段的产出**装配**成 22-25 页国赛论文。**不重新建模, 不重新求解**(若发现需要, 触发 L2 而非自行回退)。
+把前面 0-7 阶段的产出**装配**成最终论文。**不重新建模, 不重新求解** (若发现需要, 触发 L2 而非自行回退)。页数与摘要风格按 competition 分支:
+- cumcm: 22-25 页, 5 段式摘要 600-1200 字 (中文)
+- mcm: 25-40 页, 1-page Summary 250-350 词 + Letter (D/E/F)  (英文)
+- diangong: 25-30 页, 4 段式摘要 600-1000 字 (中文工程)
 
 ---
 
 ## 输入
 
 - stage 0-7 全部 decision_log 内容
-- `templates/paper_skeleton.md` (论文骨架)
-- `templates/abstract_template.md` (5 段式摘要模板)
-- `templates/cumcmthesis/` (LaTeX 模板)
-- `references/winning_patterns.md` (写作时打开)
-- `references/phrase_bank.md` (写作时打开)
+- **按 competition 加载** (路径: `<skill>/competitions/<decision_log.competition>/`):
+  - `paper_skeleton.md` (论文骨架)
+  - `abstract_template.md` (摘要模板 — cumcm 5段 / mcm 1-page+Letter / diangong 4段)
+  - `winning_patterns.md` (写作 anchor)
+  - `phrase_bank.md` (写作 anchor)
+  - `anti_patterns.md§A_I` (写作时回避)
+  - `empirical.json` (硬阈值锚定 — cumcm 真数据 / mcm/diangong seed)
+- LaTeX 模板: `<skill>/templates/latex/<competition>/`
 
 ## 产出
 

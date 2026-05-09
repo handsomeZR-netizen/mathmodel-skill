@@ -1,0 +1,50 @@
+{
+  "_doc": "Phase 10 验证 fixture: stage 5 per-Qi 加权聚合. Q1 pass / Q2 mark_for_review / Q3 pass. 期望 verdict=pass_with_review, review_qis=[Q2].",
+  "_test_target": "score_artifact.py compute_stage5_verdict",
+  "_expected_output": {
+    "verdict": "pass_with_review",
+    "review_qis": ["Q2"],
+    "refine_qis": [],
+    "weighted_min": 7,
+    "weighted_mean_approx": 8.17
+  },
+  "qi_results": [
+    {
+      "qi": "Q1",
+      "min": 8,
+      "mean": 8.5,
+      "scores": {
+        "1_problem_fit": {"score": 9},
+        "2_math_rigor": {"score": 8},
+        "3_solve_correctness": {"score": 9},
+        "4_visualization": {"score": 8},
+        "5_physical_meaning": {"score": 8}
+      }
+    },
+    {
+      "qi": "Q2",
+      "min": 7,
+      "mean": 7.2,
+      "scores": {
+        "1_problem_fit": {"score": 7},
+        "2_math_rigor": {"score": 7},
+        "3_solve_correctness": {"score": 8},
+        "4_visualization": {"score": 7},
+        "5_physical_meaning": {"score": 7}
+      }
+    },
+    {
+      "qi": "Q3",
+      "min": 8,
+      "mean": 8.8,
+      "scores": {
+        "1_problem_fit": {"score": 9},
+        "2_math_rigor": {"score": 9},
+        "3_solve_correctness": {"score": 9},
+        "4_visualization": {"score": 8},
+        "5_physical_meaning": {"score": 9}
+      }
+    }
+  ],
+  "qi_weights": [1.0, 1.0, 1.0]
+}

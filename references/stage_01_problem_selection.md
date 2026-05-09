@@ -2,14 +2,14 @@
 stage: 1
 name: problem_selection
 duration_h: 2-3
-inputs: [stage.0.problem_scan, problem_pdfs[A,B,C,D,E]]
-outputs: [stage.1.{selected, rationale, rejected_alternatives, candidates_assessed, risks_identified}]
-loads_reference: [rubrics.md§Stage_1, model_catalog.md§0]
+inputs: [stage.0.problem_scan, problem_pdfs[<topic_letters>], decision_log.competition]
+outputs: [stage.1.{selected, rationale, rejected_alternatives, candidates_assessed, risks_identified}, root.task_type]
+loads_reference: [rubrics.md§Stage_1, model_catalog.md§0, competitions/<competition>/topic_specs.json]
 feedback: [L1]
 next: stage_02_analysis
 ---
 
-# Stage 1 — 选题 (3 题对比 → 1)
+# Stage 1 — 选题 (多题对比 → 1)
 
 **时长**: 2-3h | **反馈层**: L1 | **关键决策点**: 一旦选定,24h 内不允许更改
 
@@ -17,7 +17,9 @@ next: stage_02_analysis
 
 ## 目标
 
-在 A/B/C/D/E 三题(本科组通常 ABC,2024 起增 DE)中,选出**最契合团队优势 + 时间预算 + 数据可获取性**的一题,且决策有据可查、不可悔棋。
+在题号体系内 (cumcm A-E / mcm A-F / diangong A-B), 选出**最契合团队优势 + 时间预算 + 数据可获取性**的一题, 且决策有据可查、不可悔棋。
+
+**第一步必做**: 加载 `competitions/<competition>/topic_specs.json` 获取本竞赛的题号清单与每题 `task_type_key`; 选定后写 `decision_log.task_type` (供 stage 3+ 的 dim_weights 加权)。
 
 ---
 
@@ -36,6 +38,21 @@ next: stage_02_analysis
 ---
 
 ## 操作流程
+
+### Step 0: 加载竞赛题号体系 (5 min, 必做)
+
+```bash
+# 路径: <skill>/competitions/<competition>/topic_specs.json
+# 加载后得到本竞赛的题号清单 (cumcm A-E / mcm A-F / diangong A-B) 与每题的 task_type_key
+```
+
+题号体系总览 (引用 `topic_specs.json`):
+
+| Competition | 题号 | 默认子问数 | 主要类型 |
+|---|---|---|---|
+| cumcm | A 优化, B 评价, C 数据, D 工业, E 创新 | 3-5 | 中文论文 |
+| mcm   | A 连续, B 离散, C 数据, D 网络, E 跨学科, F 政策 | 3-6 | 英文 + Letter (D/E/F) |
+| diangong | A 电力工程, B 能源数据 | 6-8 | 中文工程 |
 
 ### Step 1: 三题信息提取 (45 min,并行)
 
@@ -100,6 +117,11 @@ next: stage_02_analysis
   "risks_identified": [...]
 }
 ```
+
+**同步写 root 字段**:
+- `decision_log.task_type` ← `topic_specs.json[selected].task_type_key` (e.g. `A_optimization` for cumcm-A)
+- `decision_log.stages.5.qi_count` ← `topic_specs.json[selected].expected_subproblem_count` 中位 (供 stage 5 时间预算 + per-Qi 加权初始化)
+- `decision_log.stages.5.qi_weights` ← `[1.0] * qi_count` (默认均匀, 用户后续可在 stage 5 调整)
 
 **锁定承诺**: 24h 内不允许更改。如必须更改 (附件数据完全不可用等),需 L2 强触发 + 用户二次确认。
 

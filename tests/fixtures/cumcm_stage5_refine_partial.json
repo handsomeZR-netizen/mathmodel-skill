@@ -1,0 +1,15 @@
+{
+  "_doc": "Phase 10 验证 fixture: stage 5 per-Qi refine_partial. Q2 min=5 → refine. 仅 refine Q2, 不动 Q1/Q3.",
+  "_test_target": "score_artifact.py compute_stage5_verdict",
+  "_expected_output": {
+    "verdict": "refine_partial",
+    "review_qis": [],
+    "refine_qis": ["Q2"]
+  },
+  "qi_results": [
+    {"qi": "Q1", "min": 8, "mean": 8.5},
+    {"qi": "Q2", "min": 5, "mean": 6.4},
+    {"qi": "Q3", "min": 8, "mean": 8.8}
+  ],
+  "qi_weights": [1.0, 1.0, 1.0]
+}

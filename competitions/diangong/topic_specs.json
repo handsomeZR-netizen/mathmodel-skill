@@ -1,0 +1,31 @@
+{
+  "_doc": "电工杯题号体系 + 题型 → task_type 映射 hint。SEED v0.1。",
+  "_seed_version": "0.1",
+  "_seed_source": "电工杯历年题目分类 + 中国电机工程学会公开评审标准",
+  "competition": "diangong",
+  "official_name": "中国大学生电工数学建模竞赛",
+  "duration_h": 72,
+  "team_size": 3,
+  "language": "zh-CN",
+  "compiler": "xelatex",
+  "default_subproblem_count": 7,
+  "subproblem_count_iqr": [6, 8],
+  "topics": {
+    "A": {
+      "label": "A 题",
+      "category": "电力工程类",
+      "primary_type": "engineering_modeling",
+      "task_type_key": "A_engineering",
+      "typical_problems": ["电网调度", "新能源接入", "故障定位", "负荷预测"],
+      "expected_subproblem_count": [6, 8]
+    },
+    "B": {
+      "label": "B 题",
+      "category": "能源经济 / 数据分析类",
+      "primary_type": "data_analysis_engineering",
+      "task_type_key": "B_data_engineering",
+      "typical_problems": ["电力市场", "需求响应", "节能优化", "数据驱动调度"],
+      "expected_subproblem_count": [6, 8]
+    }
+  }
+}
