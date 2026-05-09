@@ -48,12 +48,14 @@ OUTPUT EXACTLY THIS JSON, NO OTHER TEXT:
 {
   "stage_id": <int>,
   "iteration": <int>,
+  "variant": "stage_level" | "per_qi",   // stage 5 必填; 其他阶段可省, 默认 "stage_level"
+  "qi_id": "Q1" | "Q2" | ... | null,      // 仅 variant="per_qi" 时必填
   "scores": {
-    "dim_1_<name>": {"score": <int 1-10>, "evidence": "<≤30字>"},
-    "dim_2_<name>": {...},
-    "dim_3_<name>": {...},
-    "dim_4_<name>": {...},
-    "dim_5_<name>": {...}
+    "1_<dim_name>": {"score": <int 1-10>, "evidence": "<≤30字>"},
+    "2_<dim_name>": {...},
+    "3_<dim_name>": {...},
+    "4_<dim_name>": {...},
+    "5_<dim_name>": {...}
   },
   "min_score": <int>,
   "mean_score": <float>,
@@ -66,9 +68,11 @@ OUTPUT EXACTLY THIS JSON, NO OTHER TEXT:
     }
     // 0-5 个
   ],
-  "verdict": "pass" | "refine" | "block"
+  "verdict": "pass_early" | "pass" | "refine" | "block"
 }
 ```
+
+**dim key 命名**: 形如 `1_role_clarity`、`2_tools_ready` ……, 数字前缀固定 1-5, 后接 §6 对应 stage 给的英文 snake_case 名。`scripts/score_artifact.py:DIM_WHITELIST` 严格按此校验, 写错即报 "dim key 不匹配"。
 
 ### 3. Verdict 规则
 
@@ -199,29 +203,40 @@ Critic 在 `issues` 数组中可以直接引用 anti_pattern ID:
 ```
 关键: B1, B4, B5
 
-#### Stage 5 (Per-Qi)
+#### Stage 5 (Per-Qi) — `variant: "per_qi"`, 每个子问题 Qi 各跑一次
 ```json
-"scores": {
-  "1_problem_fit": {...},
-  "2_math_rigor": {...},
-  "3_solve_correctness": {...},
-  "4_visualization": {...},
-  "5_physical_meaning": {...}
+{
+  "stage_id": 5,
+  "variant": "per_qi",
+  "qi_id": "Q1",
+  "scores": {
+    "1_problem_fit": {...},
+    "2_math_rigor": {...},
+    "3_solve_correctness": {...},
+    "4_visualization": {...},
+    "5_physical_meaning": {...}
+  }
 }
 ```
 关键: D1-D5 全套, E1-E4
 
-#### Stage 5 (Stage-level)
+#### Stage 5 (Stage-level) — `variant: "stage_level"`, 所有 Qi 跑完后 1 次
 ```json
-"scores": {
-  "1_subproblem_completeness": {...},
-  "2_cross_reference_chain": {...},
-  "3_symbol_consistency": {...},
-  "4_visual_density": {...},
-  "5_time_budget": {...}
+{
+  "stage_id": 5,
+  "variant": "stage_level",
+  "scores": {
+    "1_subproblem_completeness": {...},
+    "2_cross_reference_chain": {...},
+    "3_symbol_consistency": {...},
+    "4_visual_density": {...},
+    "5_time_budget": {...}
+  }
 }
 ```
 关键: G1, G2
+
+**Stage 5 调用顺序**: 先对每个 Qi 跑 per-Qi critic (写入 `decision_log.scores["5_per_qi"]`, 标 qi_id), 全部 Qi pass 后再跑 stage-level critic (写入 `decision_log.scores["5"]`)。两轨互不覆盖。
 
 #### Stage 6
 ```json
