@@ -38,15 +38,17 @@ next: stage_01_problem_selection
 
 ## 操作流程
 
-### Step 1: 元信息收集 (5 min)
+### Step 1: 元信息收集 (5 min) — 问答式
 
-**用 AskUserQuestion 单条消息一次性问 5 题** (不要分批):
+**一次性问 5 题** (Claude Code: 单条 AskUserQuestion; Codex CLI: 5 个编号列表, 见 `references/harness_compat.md` §1):
 
-1. **竞赛** (cumcm 国赛 / mcm 美赛 / diangong 电工杯) — 默认 cumcm 兼容老用户
-2. **题号** (cumcm A-E / mcm A-F / diangong A-B; 未公布填 "未公布")
-3. **队员数与各人擅长** (建模 / 编程 / 写作 / 数学 / 算法)
-4. **截止时间** (ISO 字符串)
-5. **题目 PDF 路径** (没有填 "未公布")
+1. **竞赛** — 选项: `1) cumcm 国赛  2) mcm 美赛  3) diangong 电工杯  4) 让我决定 (推荐 cumcm)`
+2. **题号** — 依竞赛动态生成选项 (cumcm A-E / mcm A-F / diangong A-B / `未公布`)
+3. **队员数与各人擅长** — 自由文本 (例: "3 人, 张建模, 李编程, 王写作")
+4. **截止时间** — 自由文本 (ISO 字符串或 "距现在 X 小时")
+5. **题目 PDF 路径** — 自由文本 ("未公布"亦可)
+
+**禁止**让用户手动编辑 decision_log.json; 拿到答案后由 agent 自动写入。
 
 写入:
 - `decision_log.competition` ← 第 1 问
@@ -98,13 +100,13 @@ which git
 pip install -r <skill>/templates/shared/requirements.txt
 ```
 
-**目录初始化** (路径协议: cwd 相对):
+**目录初始化** (agent 自动执行, 不要让用户敲命令):
 ```bash
 mkdir -p cwd/state cwd/results cwd/figures cwd/paper_workspace
 cp <skill>/templates/shared/decision_log.json cwd/state/decision_log.json   # 仅当不存在时
-# 写入 competition 字段 (从 Step 1 第 1 问)
-python -c "import json; p='cwd/state/decision_log.json'; d=json.load(open(p)); d['competition']='<选定竞赛>'; json.dump(d, open(p,'w'), ensure_ascii=False, indent=2)"
 ```
+
+写入 `decision_log.competition` 字段: agent 用 Read + Edit/Write (Claude Code) 或 apply_patch (Codex CLI) 完成, 不要让用户跑 `python -c ...`。
 
 确认 (按 competition 分支):
 | competition | LaTeX 模板 | 引擎 | 静态资料 |

@@ -1,8 +1,11 @@
-# mathmodel-skill
+# mathmodel-skill (v5.0)
 
-> 面向 CUMCM (国赛) / MCM·ICM (美赛) / 电工杯 三类数学建模竞赛的 10 阶段工程化流程。带 4 层反馈、跨阶段一致性回检、终局多视角评审、题型差异化加权、实测分位锚定打分。Claude Code skill 形式分发。
+> 面向 CUMCM (国赛) / MCM·ICM (美赛) / 电工杯 三类数学建模竞赛的 10 阶段工程化流程。**全程问答式**——用户只需回答编号问题, 不必手敲 bash / python / json。同时支持 **Claude Code** 与 **Codex CLI**, 状态文件跨 harness 互通。带 4 层反馈、跨阶段一致性回检、终局多视角评审、题型差异化加权、实测分位锚定打分。
 
-[![Skill](https://img.shields.io/badge/Claude%20Code-Skill-FF6B35)](https://docs.claude.com/en/docs/claude-code/overview)
+[![Version](https://img.shields.io/badge/version-v5.0-blueviolet)](#开发日志)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-FF6B35)](https://docs.claude.com/en/docs/claude-code/overview)
+[![Codex CLI](https://img.shields.io/badge/Codex%20CLI-AGENTS.md-10A37F)](./AGENTS.md)
+[![Friendly Mode](https://img.shields.io/badge/UX-问答式-success)](#怎么用)
 [![Stages](https://img.shields.io/badge/stages-10-blue)](./SKILL.md)
 [![Feedback Layers](https://img.shields.io/badge/feedback%20layers-4-green)](./references/feedback_layer1_critic.md)
 [![Modes](https://img.shields.io/badge/modes-fast%20%7C%20standard%20%7C%20championship-9cf)](./SKILL.md)
@@ -16,7 +19,11 @@
 
 ## 这是什么
 
-数学建模竞赛是 3-4 天完成 1 篇 25-40 页论文的紧迫工程, 流程从选题、建模、求解、灵敏度到写作很容易在某一环悄悄崩。这套 Claude Code skill 把每个阶段的检查项、典型反模式、跨阶段一致性约束固化下来, 让大模型按固定流程跟使用者一起走, 减少返工。
+数学建模竞赛是 3-4 天完成 1 篇 25-40 页论文的紧迫工程, 流程从选题、建模、求解、灵敏度到写作很容易在某一环悄悄崩。这套 skill 把每个阶段的检查项、典型反模式、跨阶段一致性约束固化下来, 让大模型按固定流程跟使用者一起走, 减少返工。
+
+**v5 起两条新设计**:
+- **全程问答式 (Friendly Mode)** — 关键决策 (选题/选模型/verdict/refine) 全部以编号选项呈现, 用户输入 1-4 即可推进, 全程不需要手敲 bash / python / json。每个问题都有 "让我决定 (推荐 X)" 兜底, 完全无脑也能跑通。
+- **harness-agnostic** — 同一份 skill, **Claude Code** 通过 `SKILL.md` 入口, **Codex CLI** 通过 `AGENTS.md` 入口, 状态文件 `cwd/state/decision_log.json` 跨 harness 互通。Day 1 在 Codex 跑 stage 0-2, Day 2 切回 Claude Code 接着 stage 3+, 完全不丢状态。
 
 它不替选题、不替建模、不保证拿奖。**作用是把节奏卡住, 把容易忘的细节固化, 把别人论文里反复出现的句式与命名提取出来供模仿。**
 
@@ -41,21 +48,39 @@
 
 ## 怎么用
 
-放到 Claude Code 的 skill 目录下:
+### Claude Code
 
 ```bash
 git clone https://github.com/handsomeZR-netizen/mathmodel-skill.git ~/.claude/skills/mathmodel-skill
 pip install -r ~/.claude/skills/mathmodel-skill/templates/shared/requirements.txt
 ```
 
-跟 Claude 说"开始建模"或"打 mcm"。第一次会问 5 个问题 (竞赛、题号、队员、截止、PDF), 然后从 Stage 0 开始走。
+启动 Claude Code, 跟 Claude 说"开始建模"或"打 mcm"。
+
+### Codex CLI
+
+```bash
+git clone https://github.com/handsomeZR-netizen/mathmodel-skill.git ~/mathmodel-skill
+pip install -r ~/mathmodel-skill/templates/shared/requirements.txt
+cd <your-team-workspace>
+codex -s ~/mathmodel-skill/AGENTS.md   # 或在 ~/.codex/config.toml 注册
+```
+
+跟 Codex 说"开始建模"或"打 mcm"。Codex 没有原生选项 UI, skill 自动回退成 markdown 编号列表 (`1) ... 2) ... 4) 让我决定 (推荐 X)`), 你回数字即可。
+
+### 之后的事
+
+第一次会问 5 个问题 (竞赛、题号、队员、截止、PDF), 然后从 Stage 0 开始走。每个 stage 的关键决策点都会以编号问答呈现; 想偷懒就一直选"让我决定 (推荐 X)", 也能跑通。
+
+**跨 harness 接力**: 状态全部在 `cwd/state/decision_log.json`, 队友换 harness 接着跑不丢进度。详见 [`references/harness_compat.md`](./references/harness_compat.md)。
 
 ---
 
 ## 结构
 
 ```
-SKILL.md                       # 入口, 三竞赛矩阵 + 加载协议 + verdict 定义
+SKILL.md                       # Claude Code 入口, 三竞赛矩阵 + 加载协议 + verdict 定义
+AGENTS.md                      # Codex CLI 入口 (v5 新增), 指向 SKILL.md + 说明 harness 差异
 README.md                      # 当前文件
 competitions/                  # 竞赛特化层
   cumcm/                       # 91 篇真烘焙: empirical.json + 蒸馏 markdown
@@ -77,6 +102,7 @@ references/                    # 通用层 (跨竞赛共享)
   feedback_layer1 ~ 4           # 自评 / 跨阶段回检 / 5 视角 panel / 防 gaming
   rubrics.md                    # 评分量表 (与 SKILL.md verdict 三处统一)
   model_catalog.md              # 60+ 模型按 10 类 + 历年题速查
+  harness_compat.md             # v5: Claude Code / Codex CLI 适配协议 (问答式 + 互通)
 templates/
   latex/{cumcm,mcm,diangong}/   # 各竞赛 LaTeX 模板
   shared/                       # 跨竞赛通用
@@ -100,11 +126,13 @@ tests/fixtures/                 # score_artifact 单元测试样本
 
 ## 设计选择
 
-- **10 阶段 / 4 反馈层 / 3 模式 / 3 竞赛 正交组合**: 每个轴向独立, 组合矩阵 ≥ 36 种行为. 三竞赛切换不影响 mode, 反之亦然.
+- **Friendly Mode 优先 (v5)**: 关键决策必须以编号选项呈现, 每问都有 "让我决定 (推荐 X)" 兜底. 用户不必读 stage 文档, 不必编辑 json, 不必敲 bash. 这是 v5 最重要的设计 — 把"工程化流程"对用户的认知负担降到最低.
+- **harness-agnostic (v5)**: SKILL.md / AGENTS.md 双入口, decision_log.json 跨 harness 互通. 团队成员可以混用 Claude Code 与 Codex CLI 接力打比赛.
+- **10 阶段 / 4 反馈层 / 3 模式 / 3 竞赛 / 2 harness 正交组合**: 每个轴向独立, 组合矩阵 ≥ 72 种行为. 切 harness 不影响 mode, 切竞赛不影响反馈层, 反之亦然.
 - **评分锚定实测分位** (cumcm): 91 篇 p25/p50/p75 直接进入 L1 Critic prompt 的 evidence 字段, 而非"推荐 600-900 字"这种估计值
 - **Stage 5 per-Qi 加权聚合** (v3.0): 单 Qi 弱不再被全 stage 平均掩盖. `pass_with_review` 与 `refine_partial` 两个新 verdict 实现差异化降级 — Q2 单独 refine 不重做 Q1/Q3, 节省 ~60% 时间
 - **题型 dim 权重**: A 优化题强化模型 dim, C 数据题强化统计/灵敏度, MCM 全题型强化 communication, F 政策题加权 Letter. 权重 clamp [0.7, 1.5] 防过激.
-- **路径协议严格**: `<skill>/` 内文件用 skill 相对路径, 用户产物 (state/results/figures/paper_workspace) 用 cwd 相对路径, 三竞赛特化文件用 `competitions/<comp>/` 通配
+- **路径协议严格**: `<skill>/` 内文件用 skill 相对路径, 用户产物 (state/results/figures/paper_workspace) 用 cwd 相对路径, 三竞赛特化文件用 `competitions/<comp>/` 通配. **harness 无关**.
 - **token 纪律**: section-level patch 精修, references/competitions 懒加载, decision_log 持久化, 早退阈值 (iter-1 全维 ≥9 即跳)
 
 ## 不做的事
@@ -148,7 +176,8 @@ tests/fixtures/                 # score_artifact 单元测试样本
 - V1: 初次搭建, 10 阶段 + 4 反馈层
 - V2: 审计修了 20 条 (协议矛盾、schema 漂移、脚本 bug)
 - V3: 模板瘦身 + 91 篇 PDF 蒸馏成 4 份 markdown 后删除 PDF (释放 494MB)
-- **V4 (current)**: 三竞赛通用化 (`competitions/{cumcm,mcm,diangong}/`); 评分系统升级 — empirical 真正进入 L1 prompt; Stage 5 per-Qi 加权聚合 + 差异化降级 (`pass_with_review` / `refine_partial` 两个新 verdict); 题型 dim 权重 (`config/dim_weights.json`); SKILL.md 由 9k 字节瘦身到 ≤ 6k.
+- V4: 三竞赛通用化 (`competitions/{cumcm,mcm,diangong}/`); 评分系统升级 — empirical 真正进入 L1 prompt; Stage 5 per-Qi 加权聚合 + 差异化降级 (`pass_with_review` / `refine_partial` 两个新 verdict); 题型 dim 权重 (`config/dim_weights.json`); SKILL.md 由 9k 字节瘦身到 ≤ 6k.
+- **V5 (current)**: harness-agnostic — 新增 `AGENTS.md` 作为 Codex CLI 入口, `references/harness_compat.md` 定义跨 harness 行为约定, `decision_log.json` 跨 Claude Code / Codex CLI 互通. Friendly Mode — 所有关键决策点 (选题/选模型/verdict/refine 决策) 强制问答式 (编号选项 + "让我决定" 兜底), 用户不再需要手敲 bash / python / 编辑 json. stage_00 / stage_01 / stage_05 已落实问答式样板, 其余 stage 由 SKILL.md 顶层协议统一约束.
 
 ---
 

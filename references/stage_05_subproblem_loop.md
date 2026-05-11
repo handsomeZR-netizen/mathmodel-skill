@@ -311,14 +311,29 @@ for qi in qi_results:
 - 只重跑 Q2 的 Step A-G; Q1/Q3 不动 (节省 ~60% 时间)
 - iter+=1 仅对 Q2; 老 iter cap 3 仍生效, Q2 三次仍 refine 则 carryover
 
-### 调用脚本
+### 调用脚本 + verdict 问答确认 (v5 Friendly Mode)
 
 ```bash
-# 在所有 Qi 跑完 per-Qi critic 后, 由调度器触发:
+# 在所有 Qi 跑完 per-Qi critic 后, agent 自动触发 (用户不必敲):
 python scripts/score_artifact.py --mode aggregate_qi --qi-results state/qi_results.json
 # qi_results.json schema: {qi_results: [{qi, min, mean, scores}], qi_weights: [...]}
 # 输出: {verdict, weighted_min, weighted_mean, qi_status, review_qis, refine_qis}
 ```
+
+脚本出 `verdict` 后, agent **问用户一次**确认 (Claude Code: AskUserQuestion; Codex CLI: 编号列表):
+
+```
+【Stage 5 聚合完成: verdict=refine_partial, Q2 需 refine, Q1/Q3 已 pass】
+
+  1) 按推荐 refine Q2 (重跑 Q2 Step A-G, Q1/Q3 不动, 约 4-8h)
+  2) 全 stage refine (含 Q1/Q3, 约 12-24h, 不推荐)
+  3) 强制 carryover, 接受当前结果进 stage 6 (Q2 弱点留 stage 9 panel 处理)
+  4) 让我决定 (推荐 1)
+
+回复数字。
+```
+
+用户回复后 agent 自动执行, **不要**让用户编辑 decision_log 或重跑脚本。
 
 ### qi_weights 调整时机
 

@@ -102,9 +102,22 @@ next: stage_02_analysis
   应对: 先 toy demo, 实际数据规模降采样
 ```
 
-### Step 4: 决策与锁定 (15 min)
+### Step 4: 决策与锁定 (15 min) — 问答式
 
-输出 `decision_log.stages.1`:
+**呈现给用户** (Claude Code: AskUserQuestion; Codex CLI: 编号列表):
+
+```
+【基于 5 维对比矩阵, 推荐选题】
+
+  1) A 题 — 加权 7.65 (最高), 优势: 模型族契合 9 分
+  2) B 题 — 加权 6.10, 优势: 创新空间 9 分
+  3) C 题 — 加权 7.10, 优势: 时间可行性 8 分
+  4) 让我决定 (推荐 1)
+
+回复数字。
+```
+
+用户选定后, **agent 自动写入** `decision_log.stages.1` (不要让用户编辑 json):
 ```json
 {
   "selected": "A",
