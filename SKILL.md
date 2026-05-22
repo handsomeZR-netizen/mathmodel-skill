@@ -1,30 +1,44 @@
 ---
 name: mathmodel-skill
-description: 数学建模竞赛端到端工作流, 三竞赛通用 (CUMCM 国赛 / MCM 美赛 / 电工杯), 全程问答式 (用户只需回答编号问题). 10 阶段 + 4 反馈层, 题型 dim 加权, per-Qi 差异化降级, 实测分位锚定打分. 三种模式 fast(2h)/standard(6h)/championship(12h). harness-agnostic — 同时支持 Claude Code 与 Codex CLI, state 跨 harness 互通. 触发: 用户提到 "建模/数模/CUMCM/国赛/MCM/ICM/美赛/电工杯/A题/B题/C题/cumcm-modeling/codex 建模", 或在 mathmodel-skill 目录下工作.
+description: 数学建模竞赛端到端工作流, 用于 CUMCM 国赛 / MCM·ICM 美赛 / 电工杯的选题、建模、求解、论文写作和终稿审核. Use when Codex helps with 建模、数模、CUMCM、国赛、MCM、ICM、美赛、电工杯、A题/B题/C题、竞赛论文、模型选择、灵敏度分析、摘要写作或终稿 review. 10 阶段 + 4 反馈层, 全程编号问答式, 支持 Codex Skills / AGENTS.md / plugin packaging, state 跨 Codex 与 Claude Code 互通.
 ---
 
-# mathmodel-skill — 数学建模 三竞赛通用 Skill (v5.0)
+# mathmodel-skill — 数学建模 三竞赛通用 Skill (v6.0)
 
 10 阶段把"3-4 天打 1 篇竞赛论文"工程化, **全程问答式**——用户只需回答编号问题, 不必手敲 bash / python / json。每阶段产出经过 rubric 自评 + section-level patch 精修, 跨阶段一致性回检, 终局多视角 panel。三竞赛通用框架 + 国赛 91 篇真烘焙 + MCM/电工杯 seed v0.1。
 
-**v5 新增**: harness-agnostic (Claude Code / Codex CLI 平行兼容), Friendly Mode (问答式优先, 详见下方协议)。
+**v6 更新**: Codex-native packaging (`agents/openai.yaml` + `.codex-plugin/plugin.json`), 按 OpenAI Codex Skills / AGENTS.md / Plugins 的官方形态组织入口, 同时保留 v5 的 harness-agnostic 与 Friendly Mode。
 
 ---
 
-## Harness 兼容 (Claude Code / Codex CLI)
+## Codex V6 原生入口
 
-本 skill v5.0 起为 harness-agnostic 设计:
+Codex 优先按 skill 目录发现本文件:
+
+- 用户级安装: `$HOME/.agents/skills/mathmodel-skill/`
+- 项目级安装: `<repo>/.agents/skills/mathmodel-skill/`
+- UI 元数据: `agents/openai.yaml`
+- 插件分发元数据: `.codex-plugin/plugin.json` + `skills/mathmodel-skill/SKILL.md` shim
+- 项目指导: `AGENTS.md` 仍可作为 repo / workspace 级 instructions, 但不是唯一入口
+
+当 skill 已安装后, 用户可直接说"开始建模"或显式说"使用 `$mathmodel-skill` 开始建模"。
+
+---
+
+## Harness 兼容 (Claude Code / Codex)
+
+本 skill v6.0 以 Codex Skills 为一等入口, 同时保持 harness-agnostic 设计:
 
 | harness | 入口文件 | 用户交互工具 | 状态文件 |
 |---------|---------|-------------|---------|
 | Claude Code | `SKILL.md` (本文件) | `AskUserQuestion` 工具 | `cwd/state/decision_log.json` |
-| Codex CLI | `AGENTS.md` (slim, 指向本文件) | markdown 编号列表 | 同上 (**互通**) |
+| Codex CLI / Codex app | skill 目录中的 `SKILL.md` + 可选 `AGENTS.md` | markdown 编号列表 | 同上 (**互通**) |
 
 跨 harness 互通: day 1 用 Codex 跑 stage 0-2, day 2 切回 Claude Code 接着 stage 3+, 状态完全保留。详见 `references/harness_compat.md`。
 
 ---
 
-## 问答式优先 (Friendly Mode, v5)
+## 问答式优先 (Friendly Mode)
 
 **核心原则**: 用户只需回答**编号问题**, 不应被要求手敲 bash / python / json。
 
@@ -33,7 +47,7 @@ description: 数学建模竞赛端到端工作流, 三竞赛通用 (CUMCM 国赛
 - 状态读写 (decision_log.json) → agent 自动完成
 - 每个 stage 的关键决策点都有 "让我决定 (推荐 X)" 兜底选项, 用户无脑选 4 也能跑通
 
-Claude Code: 用 `AskUserQuestion` 工具; Codex CLI: 用 markdown 编号列表 (1-4 + 兜底)。两者语义等价, 见 `references/harness_compat.md` §1。
+Claude Code: 用 `AskUserQuestion` 工具; Codex: 用 markdown 编号列表 (1-4 + 兜底)。两者语义等价, 见 `references/harness_compat.md` §1。
 
 ---
 
@@ -57,7 +71,7 @@ Claude Code: 用 `AskUserQuestion` 工具; Codex CLI: 用 markdown 编号列表 
 ```
 1. 一段话介绍 (≤50 字): "启动数学建模工作流, 10 阶段 + 三竞赛, 全程问答式."
 
-2. 一次性 5 问 (Claude Code: AskUserQuestion 单条消息; Codex CLI: 5 个编号列表):
+2. 一次性 5 问 (Claude Code: AskUserQuestion 单条消息; Codex: 5 个编号列表):
    - 竞赛 (cumcm 国赛 / mcm 美赛 / diangong 电工杯, 默认 cumcm)
    - 题号 (依竞赛: cumcm A-E / mcm A-F / diangong A-B; "未公布"亦可)
    - 队员数 + 各人擅长 (建模/编程/写作)
@@ -139,7 +153,7 @@ Claude Code: 用 `AskUserQuestion` 工具; Codex CLI: 用 markdown 编号列表 
 - **stage 8 硬阈值评分**: `competitions/<comp>/empirical.json` 注入 evidence (cumcm 真值; mcm/diangong seed 自动带 [seed: ...] 标记)
 - **stage 9**: `competitions/<comp>/anti_patterns.md` (逐条对照) + `rubric_overlay.json` 的 panel_personas
 - 触发反馈时: 对应 `references/feedback_layer*.md`
-- harness 适配差异 (Codex CLI 用户必读): `references/harness_compat.md`
+- harness 适配差异 (Codex 用户必读): `references/harness_compat.md`
 
 ---
 

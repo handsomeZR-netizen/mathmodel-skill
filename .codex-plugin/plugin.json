@@ -1,0 +1,38 @@
+{
+  "name": "mathmodel-skill",
+  "version": "6.0.0",
+  "description": "End-to-end Codex skill for CUMCM, MCM/ICM, and Diangong Cup mathematical modeling competitions.",
+  "author": {
+    "name": "handsomeZR-netizen",
+    "url": "https://github.com/handsomeZR-netizen"
+  },
+  "homepage": "https://github.com/handsomeZR-netizen/mathmodel-skill",
+  "repository": "https://github.com/handsomeZR-netizen/mathmodel-skill",
+  "license": "MIT",
+  "keywords": [
+    "math-modeling",
+    "cumcm",
+    "mcm",
+    "icm",
+    "codex-skill"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Math Modeling Skill",
+    "shortDescription": "CUMCM/MCM/电工杯数学建模十阶段问答式工作流",
+    "longDescription": "A Codex-native skill for mathematical modeling competitions. It guides teams through topic selection, modeling, solving, robustness checks, paper writing, and final review with a 10-stage workflow, numbered user decisions, persistent state, and competition-specific templates.",
+    "developerName": "handsomeZR-netizen",
+    "category": "Education",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/handsomeZR-netizen/mathmodel-skill",
+    "defaultPrompt": [
+      "Use $mathmodel-skill to start a CUMCM workflow.",
+      "Use $mathmodel-skill to compare MCM problem choices.",
+      "Use $mathmodel-skill to review a modeling paper draft."
+    ],
+    "brandColor": "#10A37F"
+  }
+}

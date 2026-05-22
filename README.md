@@ -1,10 +1,11 @@
-# mathmodel-skill (v5.0)
+# mathmodel-skill (v6.0.0)
 
-> 面向 CUMCM (国赛) / MCM·ICM (美赛) / 电工杯 三类数学建模竞赛的 10 阶段工程化流程。**全程问答式**——用户只需回答编号问题, 不必手敲 bash / python / json。同时支持 **Claude Code** 与 **Codex CLI**, 状态文件跨 harness 互通。带 4 层反馈、跨阶段一致性回检、终局多视角评审、题型差异化加权、实测分位锚定打分。
+> 面向 CUMCM (国赛) / MCM·ICM (美赛) / 电工杯 三类数学建模竞赛的 10 阶段工程化流程。**全程问答式**——用户只需回答编号问题, 不必手敲 bash / python / json。同时支持 **Codex** 与 **Claude Code**, 状态文件跨 harness 互通。带 4 层反馈、跨阶段一致性回检、终局多视角评审、题型差异化加权、实测分位锚定打分。
 
-[![Version](https://img.shields.io/badge/version-v5.0-blueviolet)](#开发日志)
+[![Version](https://img.shields.io/badge/version-v6.0.0-blueviolet)](#开发日志)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-FF6B35)](https://docs.claude.com/en/docs/claude-code/overview)
-[![Codex CLI](https://img.shields.io/badge/Codex%20CLI-AGENTS.md-10A37F)](./AGENTS.md)
+[![Codex](https://img.shields.io/badge/Codex-AGENTS.md-10A37F)](./AGENTS.md)
+[![Codex Skill](https://img.shields.io/badge/Codex-Skill%20%2B%20Plugin-10A37F)](./.codex-plugin/plugin.json)
 [![Friendly Mode](https://img.shields.io/badge/UX-问答式-success)](#怎么用)
 [![Stages](https://img.shields.io/badge/stages-10-blue)](./SKILL.md)
 [![Feedback Layers](https://img.shields.io/badge/feedback%20layers-4-green)](./references/feedback_layer1_critic.md)
@@ -21,9 +22,10 @@
 
 数学建模竞赛是 3-4 天完成 1 篇 25-40 页论文的紧迫工程, 流程从选题、建模、求解、灵敏度到写作很容易在某一环悄悄崩。这套 skill 把每个阶段的检查项、典型反模式、跨阶段一致性约束固化下来, 让大模型按固定流程跟使用者一起走, 减少返工。
 
-**v5 起两条新设计**:
+**v6 起三条设计**:
+- **Codex-native packaging** — 按 OpenAI Codex Skills / AGENTS.md / Plugins 的官方形态补齐 `agents/openai.yaml` 与 `.codex-plugin/plugin.json`, 适合放入 `$HOME/.agents/skills/` 或项目 `.agents/skills/`。
 - **全程问答式 (Friendly Mode)** — 关键决策 (选题/选模型/verdict/refine) 全部以编号选项呈现, 用户输入 1-4 即可推进, 全程不需要手敲 bash / python / json。每个问题都有 "让我决定 (推荐 X)" 兜底, 完全无脑也能跑通。
-- **harness-agnostic** — 同一份 skill, **Claude Code** 通过 `SKILL.md` 入口, **Codex CLI** 通过 `AGENTS.md` 入口, 状态文件 `cwd/state/decision_log.json` 跨 harness 互通。Day 1 在 Codex 跑 stage 0-2, Day 2 切回 Claude Code 接着 stage 3+, 完全不丢状态。
+- **harness-agnostic** — 同一份 skill, **Codex** 通过 skill 目录 / `AGENTS.md` / plugin 入口, **Claude Code** 通过 `SKILL.md` 入口, 状态文件 `cwd/state/decision_log.json` 跨 harness 互通。Day 1 在 Codex 跑 stage 0-2, Day 2 切回 Claude Code 接着 stage 3+, 完全不丢状态。
 
 它不替选题、不替建模、不保证拿奖。**作用是把节奏卡住, 把容易忘的细节固化, 把别人论文里反复出现的句式与命名提取出来供模仿。**
 
@@ -57,16 +59,36 @@ pip install -r ~/.claude/skills/mathmodel-skill/templates/shared/requirements.tx
 
 启动 Claude Code, 跟 Claude 说"开始建模"或"打 mcm"。
 
-### Codex CLI
+### Codex (推荐 V6 安装)
 
 ```bash
-git clone https://github.com/handsomeZR-netizen/mathmodel-skill.git ~/mathmodel-skill
-pip install -r ~/mathmodel-skill/templates/shared/requirements.txt
+git clone https://github.com/handsomeZR-netizen/mathmodel-skill.git ~/.agents/skills/mathmodel-skill
+pip install -r ~/.agents/skills/mathmodel-skill/templates/shared/requirements.txt
 cd <your-team-workspace>
-codex -s ~/mathmodel-skill/AGENTS.md   # 或在 ~/.codex/config.toml 注册
+codex
 ```
 
-跟 Codex 说"开始建模"或"打 mcm"。Codex 没有原生选项 UI, skill 自动回退成 markdown 编号列表 (`1) ... 2) ... 4) 让我决定 (推荐 X)`), 你回数字即可。
+跟 Codex 说"开始建模"或显式说"使用 `$mathmodel-skill` 开始建模"。Codex 会按 skill metadata 触发 `SKILL.md`; 如果当前 workspace 也有 `AGENTS.md`, Codex 会把它作为项目级 instructions 叠加。
+
+项目级安装也可以:
+
+```bash
+mkdir -p .agents/skills
+git clone https://github.com/handsomeZR-netizen/mathmodel-skill.git .agents/skills/mathmodel-skill
+```
+
+Codex 没有原生选项 UI 时, skill 自动回退成 markdown 编号列表 (`1) ... 2) ... 4) 让我决定 (推荐 X)`), 你回数字即可。
+
+### Codex Plugin 分发
+
+V6 已包含 `.codex-plugin/plugin.json`, 可作为 Codex plugin 形式分发。该 manifest 按官方结构指向 `./skills/`, 其中 `skills/mathmodel-skill/SKILL.md` 是薄 shim, 会继续加载根目录主 `SKILL.md`。GitHub Release 源码包即可作为云端分发物。
+
+### OpenAI 官方文档对齐点
+
+- [Codex 按层级读取 `AGENTS.md`](https://developers.openai.com/codex/guides/agents-md), 用于项目级 instructions。
+- [Codex Skills](https://developers.openai.com/codex/skills) 使用 `SKILL.md` frontmatter description 做触发, `agents/openai.yaml` 做 UI 元数据。
+- [Codex Plugins](https://developers.openai.com/codex/plugins) 可以声明并分发 skills, 适合团队复用。
+- 后续维护 OpenAI/Codex 相关规则时, 优先用 [OpenAI Docs MCP](https://developers.openai.com/learn/docs-mcp) 或 OpenAI 官方文档核对。
 
 ### 之后的事
 
@@ -80,7 +102,10 @@ codex -s ~/mathmodel-skill/AGENTS.md   # 或在 ~/.codex/config.toml 注册
 
 ```
 SKILL.md                       # Claude Code 入口, 三竞赛矩阵 + 加载协议 + verdict 定义
-AGENTS.md                      # Codex CLI 入口 (v5 新增), 指向 SKILL.md + 说明 harness 差异
+AGENTS.md                      # Codex 项目级 instructions, 指向 SKILL.md + 说明 harness 差异
+agents/openai.yaml             # Codex skill UI 元数据 + 默认 prompt
+.codex-plugin/plugin.json      # Codex plugin 分发 manifest
+skills/mathmodel-skill/        # Codex plugin 官方 skills/ 布局 shim
 README.md                      # 当前文件
 competitions/                  # 竞赛特化层
   cumcm/                       # 91 篇真烘焙: empirical.json + 蒸馏 markdown
@@ -102,7 +127,7 @@ references/                    # 通用层 (跨竞赛共享)
   feedback_layer1 ~ 4           # 自评 / 跨阶段回检 / 5 视角 panel / 防 gaming
   rubrics.md                    # 评分量表 (与 SKILL.md verdict 三处统一)
   model_catalog.md              # 60+ 模型按 10 类 + 历年题速查
-  harness_compat.md             # v5: Claude Code / Codex CLI 适配协议 (问答式 + 互通)
+  harness_compat.md             # Claude Code / Codex 适配协议 (问答式 + state 互通)
 templates/
   latex/{cumcm,mcm,diangong}/   # 各竞赛 LaTeX 模板
   shared/                       # 跨竞赛通用
@@ -126,8 +151,9 @@ tests/fixtures/                 # score_artifact 单元测试样本
 
 ## 设计选择
 
-- **Friendly Mode 优先 (v5)**: 关键决策必须以编号选项呈现, 每问都有 "让我决定 (推荐 X)" 兜底. 用户不必读 stage 文档, 不必编辑 json, 不必敲 bash. 这是 v5 最重要的设计 — 把"工程化流程"对用户的认知负担降到最低.
-- **harness-agnostic (v5)**: SKILL.md / AGENTS.md 双入口, decision_log.json 跨 harness 互通. 团队成员可以混用 Claude Code 与 Codex CLI 接力打比赛.
+- **Codex-native packaging (v6)**: `SKILL.md` 仍是主 workflow, `agents/openai.yaml` 提供 Codex UI 元数据, `.codex-plugin/plugin.json` + `skills/mathmodel-skill/` 提供 plugin 分发入口, `AGENTS.md` 只保留项目级 harness shim.
+- **Friendly Mode 优先**: 关键决策必须以编号选项呈现, 每问都有 "让我决定 (推荐 X)" 兜底. 用户不必读 stage 文档, 不必编辑 json, 不必敲 bash. 目标是把"工程化流程"对用户的认知负担降到最低.
+- **harness-agnostic**: skill 目录 / AGENTS.md / plugin / SKILL.md 多入口, decision_log.json 跨 harness 互通. 团队成员可以混用 Claude Code 与 Codex 接力打比赛.
 - **10 阶段 / 4 反馈层 / 3 模式 / 3 竞赛 / 2 harness 正交组合**: 每个轴向独立, 组合矩阵 ≥ 72 种行为. 切 harness 不影响 mode, 切竞赛不影响反馈层, 反之亦然.
 - **评分锚定实测分位** (cumcm): 91 篇 p25/p50/p75 直接进入 L1 Critic prompt 的 evidence 字段, 而非"推荐 600-900 字"这种估计值
 - **Stage 5 per-Qi 加权聚合** (v3.0): 单 Qi 弱不再被全 stage 平均掩盖. `pass_with_review` 与 `refine_partial` 两个新 verdict 实现差异化降级 — Q2 单独 refine 不重做 Q1/Q3, 节省 ~60% 时间
@@ -177,7 +203,8 @@ tests/fixtures/                 # score_artifact 单元测试样本
 - V2: 审计修了 20 条 (协议矛盾、schema 漂移、脚本 bug)
 - V3: 模板瘦身 + 91 篇 PDF 蒸馏成 4 份 markdown 后删除 PDF (释放 494MB)
 - V4: 三竞赛通用化 (`competitions/{cumcm,mcm,diangong}/`); 评分系统升级 — empirical 真正进入 L1 prompt; Stage 5 per-Qi 加权聚合 + 差异化降级 (`pass_with_review` / `refine_partial` 两个新 verdict); 题型 dim 权重 (`config/dim_weights.json`); SKILL.md 由 9k 字节瘦身到 ≤ 6k.
-- **V5 (current)**: harness-agnostic — 新增 `AGENTS.md` 作为 Codex CLI 入口, `references/harness_compat.md` 定义跨 harness 行为约定, `decision_log.json` 跨 Claude Code / Codex CLI 互通. Friendly Mode — 所有关键决策点 (选题/选模型/verdict/refine 决策) 强制问答式 (编号选项 + "让我决定" 兜底), 用户不再需要手敲 bash / python / 编辑 json. stage_00 / stage_01 / stage_05 已落实问答式样板, 其余 stage 由 SKILL.md 顶层协议统一约束.
+- V5: harness-agnostic — 新增 `AGENTS.md` 作为 Codex CLI 入口, `references/harness_compat.md` 定义跨 harness 行为约定, `decision_log.json` 跨 Claude Code / Codex CLI 互通. Friendly Mode — 所有关键决策点 (选题/选模型/verdict/refine 决策) 强制问答式 (编号选项 + "让我决定" 兜底), 用户不再需要手敲 bash / python / 编辑 json. stage_00 / stage_01 / stage_05 已落实问答式样板, 其余 stage 由 SKILL.md 顶层协议统一约束.
+- **V6 (current)**: Codex-native packaging — 按 OpenAI Codex Skills / AGENTS.md / Plugins 官方形态补齐 `agents/openai.yaml`、`.codex-plugin/plugin.json` 与 `skills/mathmodel-skill/` plugin shim, README 改为 `.agents/skills/` 安装方式, `AGENTS.md` 降级为项目级 instructions shim, `references/harness_compat.md` 同步 Codex skill / plugin 发现协议. 运行时 workflow、评分脚本与 `decision_log.json` schema 保持兼容.
 
 ---
 

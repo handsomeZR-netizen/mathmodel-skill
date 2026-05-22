@@ -1,6 +1,21 @@
-# Harness 兼容协议 (Claude Code / Codex CLI)
+# Harness 兼容协议 (Claude Code / Codex)
 
-本文件定义 mathmodel-skill 在不同 agentic harness 下运行时的**统一行为约定**。从 v5.0 起, skill 主体内容 (SKILL.md, stage_NN.md, competitions/*) 均为 harness-agnostic, 仅在以下方面有差异。
+本文件定义 mathmodel-skill 在不同 agentic harness 下运行时的**统一行为约定**。从 v6.0 起, Codex 以原生 skill / plugin 形态发现本仓库, 但 skill 主体内容 (`SKILL.md`, `stage_NN.md`, `competitions/*`) 仍为 harness-agnostic, 仅在以下方面有差异。
+
+---
+
+## 0. Codex V6 发现与安装
+
+Codex 推荐安装位置:
+
+| 场景 | 位置 |
+|------|------|
+| 用户级 skill | `$HOME/.agents/skills/mathmodel-skill/` |
+| 项目级 skill | `<repo>/.agents/skills/mathmodel-skill/` |
+| 项目级 instructions | `<repo>/AGENTS.md` |
+| plugin 分发 | `.codex-plugin/plugin.json` 声明 `skills: "./skills/"` |
+
+Codex 触发优先依赖 `SKILL.md` frontmatter 的 `description`; UI 展示与默认提示依赖 `agents/openai.yaml`。Plugin 模式通过 `skills/mathmodel-skill/SKILL.md` shim 进入根目录主 `SKILL.md`。`AGENTS.md` 只作为 repo/workspace 指导文件, 不应复制完整 workflow。
 
 ---
 
@@ -30,7 +45,7 @@ AskUserQuestion(questions=[{
 }])
 ```
 
-### Codex CLI (无原生 UI)
+### Codex (无原生选项 UI 时)
 
 ```
 【Stage 3: Q1 用哪个候选模型?】
@@ -52,7 +67,7 @@ AskUserQuestion(questions=[{
 
 ## 2. 文件 I/O
 
-| 操作 | Claude Code | Codex CLI |
+| 操作 | Claude Code | Codex |
 |------|-------------|-----------|
 | 读文件 | `Read(file_path=...)` | `shell: cat ...` 或 `apply_patch` view |
 | 写新文件 | `Write(file_path=..., content=...)` | `apply_patch *** Add File` |
@@ -79,13 +94,13 @@ python scripts/render_paper.py --workspace cwd/paper_workspace/
 
 ## 4. 子代理 / 任务分派
 
-| 用途 | Claude Code | Codex CLI |
+| 用途 | Claude Code | Codex |
 |------|-------------|-----------|
 | 并行评分 5 个视角 (stage 9 panel) | `Agent` 5 个并发 subagent | 5 个独立 `codex` 子任务 (或串行) |
 | 跑大批 PDF 烘焙 | `Agent` 长时间后台 | `shell: python ... &` + 轮询 |
 | 一次性深搜外部资料 | `Agent + WebSearch` | `shell: curl ...` |
 
-如果用户用 Codex 而要求"开 5 个 panel 并行评", 老实告知 Codex 下需串行, 总时长约 5×。
+如果当前 Codex 环境没有子任务/多代理能力, 则串行执行 panel 并告知耗时约 5×; 若有可用子任务能力, 可按 5 个独立任务并行。
 
 ---
 
@@ -102,12 +117,13 @@ python scripts/render_paper.py --workspace cwd/paper_workspace/
 
 ---
 
-## 6. 触发关键词 (建议各 harness 配置)
+## 6. 触发关键词与元数据
 
 | harness | 推荐配置 |
 |---------|---------|
 | Claude Code | SKILL.md 的 frontmatter `description` 已含触发词: 建模/数模/CUMCM/国赛/MCM/ICM/美赛/电工杯/A题/B题/C题 |
-| Codex CLI | 在 `~/.codex/config.toml` 的 `[agents.mathmodel]` 节加 `triggers = ["建模", "数模", "mcm", "国赛", ...]`, 或直接 `codex -s mathmodel-skill/AGENTS.md` |
+| Codex | 安装到 `.agents/skills/` 后由 `SKILL.md` description 隐式触发; `agents/openai.yaml` 提供 UI 展示和默认 prompt |
+| Plugin | `.codex-plugin/plugin.json` 声明 `skills: "./skills/"` 并随 GitHub Release 分发 |
 
 ---
 
@@ -115,8 +131,9 @@ python scripts/render_paper.py --workspace cwd/paper_workspace/
 
 - [ ] 启动后, 不论 harness, 都立即问 5 个问题
 - [ ] 所有"选 X" 决策点都呈现编号选项
-- [ ] decision_log.json schema 完全一致 (含 v5 字段)
+- [ ] decision_log.json schema 完全一致 (含 v6 兼容字段)
 - [ ] scripts/*.py 退出码与输出 JSON 一致
 - [ ] cwd 下生成的目录结构 (state/results/figures/paper_workspace) 一致
+- [ ] Codex 安装包含 `agents/openai.yaml` 与 `.codex-plugin/plugin.json`
 
 任何一项不符 = 该 harness 适配未完成。

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Math Modeling Skill"
+  short_description: "CUMCM/MCM/电工杯数学建模十阶段问答式工作流"
+  default_prompt: "Use $mathmodel-skill to start a CUMCM/MCM/ICM math modeling workflow."

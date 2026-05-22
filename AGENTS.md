@@ -1,7 +1,8 @@
-# AGENTS.md — mathmodel-skill (Codex CLI 入口)
+# AGENTS.md — mathmodel-skill (Codex 入口 / Project Instructions)
 
-> 本文件是 **Codex CLI** (以及任何遵循 `AGENTS.md` 约定的 agentic CLI) 的入口。
+> 本文件是 **Codex** (以及任何遵循 `AGENTS.md` 约定的 agentic CLI) 的项目级入口。
 > 真正的工作流定义在 `SKILL.md`，请把它当作主指令读取。本文件只解释 **harness 差异**。
+> V6 起, 推荐把本仓库作为 Codex skill 安装到 `$HOME/.agents/skills/mathmodel-skill/` 或项目 `.agents/skills/mathmodel-skill/`; 本文件用于 repo/workspace 级补充说明。
 
 ---
 
@@ -13,11 +14,13 @@
 
 ---
 
-## Codex CLI 与 Claude Code 的差异 (你只需读这一段)
+## Codex 与 Claude Code 的差异 (你只需读这一段)
 
-| 能力 | Claude Code | Codex CLI | 你该怎么做 |
+| 能力 | Claude Code | Codex | 你该怎么做 |
 |------|-------------|-----------|----------|
-| 用户交互 | `AskUserQuestion` 工具弹出选项 UI | 无原生 UI | **用 markdown 编号列表替代**, 见下方"问答式协议" |
+| Skill 发现 | `SKILL.md` | `SKILL.md` + `agents/openai.yaml` + 可选 plugin | 首先读 `SKILL.md`, 再按需读 references |
+| 项目指导 | 无统一文件 | `AGENTS.md` 层级 instructions | 本文件只做 Codex shim, 不复制完整 workflow |
+| 用户交互 | `AskUserQuestion` 工具弹出选项 UI | 通常无原生选项 UI | **用 markdown 编号列表替代**, 见下方"问答式协议" |
 | 文件读写 | `Read` / `Edit` / `Write` | `apply_patch` / shell `cat` | 用 Codex 原生工具, 但路径协议不变 |
 | Shell | `Bash` (有 sandbox) | `shell` | 一致, 仅工具名不同 |
 | 子代理 | `Agent` (subagents) | `codex` 子任务 | 复杂分支可分派子任务跑评分/校验 |
@@ -29,7 +32,7 @@
 
 ## 问答式协议 (Friendly Mode)
 
-本 skill v5 起强制 **"用户只需回答问题"** 原则——所有关键决策点 (选题/选模型/确认假设/下一 Qi/refine 与否) 都以**编号选项**呈现, 用户输入数字即可推进。**禁止**让用户手敲 bash / python / json。
+本 skill v6 保留 **"用户只需回答问题"** 原则——所有关键决策点 (选题/选模型/确认假设/下一 Qi/refine 与否) 都以**编号选项**呈现, 用户输入数字即可推进。**禁止**让用户手敲 bash / python / json。
 
 ### Codex 下的编号问答格式
 
@@ -77,6 +80,8 @@
 
 4. 加载 `competitions/<comp>/winning_patterns.md` 一次, 后续不再重复读
 5. 进入 Stage 0 (`references/stage_00_kickoff.md`)
+
+> Codex V6 安装建议: 作为 skill 使用时, 目录应位于 `$HOME/.agents/skills/mathmodel-skill/` 或 `<repo>/.agents/skills/mathmodel-skill/`; 作为 plugin 分发时, `.codex-plugin/plugin.json` 会声明该目录包含 skill。
 
 ---
 
