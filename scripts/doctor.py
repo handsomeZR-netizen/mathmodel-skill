@@ -133,6 +133,8 @@ def run_checks(
         "scripts/extract_diff.py",
         "scripts/render_paper.py",
         "scripts/render_ai_usage.py",
+        "scripts/init_workspace.py",
+        "scripts/status.py",
         "templates/shared/ai_usage_ledger.json",
         "templates/latex/cumcm/main.tex",
         "templates/latex/mcm/main.tex",
@@ -292,7 +294,7 @@ def run_checks(
                 "workspace-state",
                 False,
                 f"not initialized: {decision_path}",
-                "Start the skill once; the agent will initialize state automatically.",
+                "Run scripts/init_workspace.py, or start the skill once and let the agent initialize state.",
             ))
 
     if check_tools:

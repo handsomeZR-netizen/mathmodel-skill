@@ -47,3 +47,11 @@ jobs:
           python scripts/doctor.py --competition cumcm --skip-tools
           python scripts/doctor.py --competition mcm --skip-tools
           python scripts/doctor.py --competition diangong --skip-tools
+
+      - name: Workspace smoke test
+        run: |
+          workspace="$(mktemp -d)"
+          python scripts/init_workspace.py --competition mcm --workspace "$workspace" --problem C --team-size 3 --hours-left 96
+          python scripts/init_workspace.py --competition mcm --workspace "$workspace"
+          python scripts/status.py --workspace "$workspace"
+          python scripts/doctor.py --competition mcm --skip-tools --workspace "$workspace"

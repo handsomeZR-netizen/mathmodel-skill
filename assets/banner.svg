@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 400" width="1280" height="400" role="img" aria-labelledby="title desc">
+  <title id="title">mathmodel-skill</title>
+  <desc id="desc">数学建模竞赛的 Agent 工作流：10 个阶段围绕一份共享决策日志运转，支持 CUMCM、MCM/ICM 与电工杯。</desc>
+  <style>
+    .title{font:800 70px 'Inter','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;letter-spacing:-1.5px}
+    .subtitle{font:600 32px 'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','WenQuanYi Zen Hei',sans-serif;fill:#E5E7EB}
+    .pill{font:600 13px 'JetBrains Mono','SFMono-Regular','Cascadia Code',Consolas,'Liberation Mono',Menlo,monospace;fill:#6EE7B7;letter-spacing:2px}
+    .tag{font:400 19px 'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','WenQuanYi Zen Hei',sans-serif;fill:#A5B4C8;opacity:0;animation:tag 12s infinite}
+    .t0{opacity:1} .t1{animation-delay:4s} .t2{animation-delay:8s}
+    @keyframes tag{0%{opacity:0;transform:translateY(6px)}4%,30%{opacity:1;transform:none}34%,100%{opacity:0;transform:translateY(-6px)}}
+    .chip{font:600 15px 'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','WenQuanYi Zen Hei',sans-serif;fill:#E2E8F0;text-anchor:middle}
+    .sym{font-family:'Cambria Math','STIX Two Math','Times New Roman',serif;fill:#FFFFFF;fill-opacity:0.09;animation:float 7s ease-in-out infinite alternate}
+    @keyframes float{from{transform:translateY(0)}to{transform:translateY(-10px)}}
+    .orbit{fill:none;stroke:#6EE7B7;stroke-opacity:0.25;stroke-dasharray:3 9;transform-origin:1035px 200px;animation:spin 60s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .spoke{stroke:#94A3B8;stroke-opacity:0.12;stroke-width:1.5;animation-duration:12s;animation-iteration-count:infinite}
+    .node{fill:#0F172A;stroke:#334155;stroke-width:2;animation-duration:12s;animation-iteration-count:infinite}
+    .num{font:700 16px 'Inter','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;fill:#E2E8F0;text-anchor:middle}
+    .core-label{font:600 15px 'JetBrains Mono','SFMono-Regular','Cascadia Code',Consolas,'Liberation Mono',Menlo,monospace;fill:#F8FAFC;text-anchor:middle}
+    .core-sub{font:500 12px 'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','WenQuanYi Zen Hei',sans-serif;fill:#6EE7B7;text-anchor:middle}
+    .pulse{fill:none;stroke:#6EE7B7;stroke-width:2;transform-box:fill-box;transform-origin:center;animation:pulse 3s ease-out infinite}
+    @keyframes pulse{from{opacity:0.55;transform:scale(1)}to{opacity:0;transform:scale(1.45)}}
+    @keyframes n0{0%,0%{fill:#0F172A;stroke:#334155}1%,6%{fill:#10A37F;stroke:#6EE7B7}9%,95%{fill:#123B37;stroke:#1F7A63}99%,100%{fill:#0F172A;stroke:#334155}}@keyframes s0{0%,0%{stroke:#94A3B8;stroke-opacity:.12}1%,6%{stroke:#6EE7B7;stroke-opacity:.8}9%,100%{stroke:#94A3B8;stroke-opacity:.12}}@keyframes n1{0%,9%{fill:#0F172A;stroke:#334155}10%,15%{fill:#10A37F;stroke:#6EE7B7}18%,95%{fill:#123B37;stroke:#1F7A63}99%,100%{fill:#0F172A;stroke:#334155}}@keyframes s1{0%,9%{stroke:#94A3B8;stroke-opacity:.12}10%,15%{stroke:#6EE7B7;stroke-opacity:.8}18%,100%{stroke:#94A3B8;stroke-opacity:.12}}@keyframes n2{0%,18%{fill:#0F172A;stroke:#334155}19%,24%{fill:#10A37F;stroke:#6EE7B7}27%,95%{fill:#123B37;stroke:#1F7A63}99%,100%{fill:#0F172A;stroke:#334155}}@keyframes s2{0%,18%{stroke:#94A3B8;stroke-opacity:.12}19%,24%{stroke:#6EE7B7;stroke-opacity:.8}27%,100%{stroke:#94A3B8;stroke-opacity:.12}}@keyframes n3{0%,27%{fill:#0F172A;stroke:#334155}28%,33%{fill:#10A37F;stroke:#6EE7B7}36%,95%{fill:#123B37;stroke:#1F7A63}99%,100%{fill:#0F172A;stroke:#334155}}@keyframes s3{0%,27%{stroke:#94A3B8;stroke-opacity:.12}28%,33%{stroke:#6EE7B7;stroke-opacity:.8}36%,100%{stroke:#94A3B8;stroke-opacity:.12}}@keyframes n4{0%,36%{fill:#0F172A;stroke:#334155}37%,42%{fill:#10A37F;stroke:#6EE7B7}45%,95%{fill:#123B37;stroke:#1F7A63}99%,100%{fill:#0F172A;stroke:#334155}}@keyframes s4{0%,36%{stroke:#94A3B8;stroke-opacity:.12}37%,42%{stroke:#6EE7B7;stroke-opacity:.8}45%,100%{stroke:#94A3B8;stroke-opacity:.12}}@keyframes n5{0%,45%{fill:#0F172A;stroke:#334155}46%,51%{fill:#10A37F;stroke:#6EE7B7}54%,95%{fill:#123B37;stroke:#1F7A63}99%,100%{fill:#0F172A;stroke:#334155}}@keyframes s5{0%,45%{stroke:#94A3B8;stroke-opacity:.12}46%,51%{stroke:#6EE7B7;stroke-opacity:.8}54%,100%{stroke:#94A3B8;stroke-opacity:.12}}@keyframes n6{0%,54%{fill:#0F172A;stroke:#334155}55%,60%{fill:#10A37F;stroke:#6EE7B7}63%,95%{fill:#123B37;stroke:#1F7A63}99%,100%{fill:#0F172A;stroke:#334155}}@keyframes s6{0%,54%{stroke:#94A3B8;stroke-opacity:.12}55%,60%{stroke:#6EE7B7;stroke-opacity:.8}63%,100%{stroke:#94A3B8;stroke-opacity:.12}}@keyframes n7{0%,63%{fill:#0F172A;stroke:#334155}64%,69%{fill:#10A37F;stroke:#6EE7B7}72%,95%{fill:#123B37;stroke:#1F7A63}99%,100%{fill:#0F172A;stroke:#334155}}@keyframes s7{0%,63%{stroke:#94A3B8;stroke-opacity:.12}64%,69%{stroke:#6EE7B7;stroke-opacity:.8}72%,100%{stroke:#94A3B8;stroke-opacity:.12}}@keyframes n8{0%,72%{fill:#0F172A;stroke:#334155}73%,78%{fill:#10A37F;stroke:#6EE7B7}81%,95%{fill:#123B37;stroke:#1F7A63}99%,100%{fill:#0F172A;stroke:#334155}}@keyframes s8{0%,72%{stroke:#94A3B8;stroke-opacity:.12}73%,78%{stroke:#6EE7B7;stroke-opacity:.8}81%,100%{stroke:#94A3B8;stroke-opacity:.12}}@keyframes n9{0%,81%{fill:#0F172A;stroke:#334155}82%,87%{fill:#10A37F;stroke:#6EE7B7}90%,95%{fill:#123B37;stroke:#1F7A63}99%,100%{fill:#0F172A;stroke:#334155}}@keyframes s9{0%,81%{stroke:#94A3B8;stroke-opacity:.12}82%,87%{stroke:#6EE7B7;stroke-opacity:.8}90%,100%{stroke:#94A3B8;stroke-opacity:.12}}
+    @media (prefers-reduced-motion: reduce){*{animation:none!important}}
+  </style>
+  <defs>
+    <linearGradient id="banner-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B1220"/>
+      <stop offset="0.55" stop-color="#111A36"/>
+      <stop offset="1" stop-color="#1A1240"/>
+    </linearGradient>
+    <radialGradient id="banner-glow-a" cx="0.12" cy="0.1" r="0.55">
+      <stop offset="0" stop-color="#10A37F" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#10A37F" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="banner-glow-b" cx="0.9" cy="0.95" r="0.6">
+      <stop offset="0" stop-color="#8B5CF6" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="banner-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#FFFFFF" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+    <clipPath id="banner-clip"><rect width="1280" height="400" rx="24"/></clipPath>
+  </defs>
+  <g clip-path="url(#banner-clip)">
+    <rect width="1280" height="400" fill="url(#banner-bg)"/>
+    <rect width="1280" height="400" fill="url(#banner-grid)"/>
+    <rect width="1280" height="400" fill="url(#banner-glow-a)"/>
+    <rect width="1280" height="400" fill="url(#banner-glow-b)"/>
+  </g>
+  <rect x="0.5" y="0.5" width="1279" height="399" rx="24" fill="none" stroke="#FFFFFF" stroke-opacity="0.08"/>
+  <defs>
+    <linearGradient id="title-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6EE7B7"/>
+      <stop offset="0.55" stop-color="#7DD3FC"/>
+      <stop offset="1" stop-color="#C4B5FD"/>
+    </linearGradient>
+    <radialGradient id="core-grad" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#10A37F" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#8B5CF6" stop-opacity="0.35"/>
+    </radialGradient>
+  </defs>
+  <text class="sym" style="animation-delay:0s" x="560" y="92" font-size="54">∑</text><text class="sym" style="animation-delay:1.5s" x="640" y="330" font-size="64">∫</text><text class="sym" style="animation-delay:3s" x="760" y="70" font-size="40">∂</text><text class="sym" style="animation-delay:2s" x="820" y="352" font-size="36">∇</text><text class="sym" style="animation-delay:1s" x="1230" y="70" font-size="40">λ</text><text class="sym" style="animation-delay:2.5s" x="1215" y="350" font-size="44">π</text><text class="sym" style="animation-delay:4s" x="700" y="200" font-size="34">≈</text><text class="sym" style="animation-delay:0.5s" x="1180" y="205" font-size="30">∞</text>
+  <rect x="72" y="58" width="214" height="32" rx="16" fill="#10A37F" fill-opacity="0.12" stroke="#10A37F" stroke-opacity="0.6"/>
+  <text class="pill" x="179" y="79" text-anchor="middle">AGENT SKILL · v6.2</text>
+  <text class="title" x="68" y="164" fill="url(#title-grad)">mathmodel-skill</text>
+  <text class="subtitle" x="72" y="214">数学建模竞赛的 Agent 工作流</text>
+  <text class="tag t0" x="72" y="262">10 个阶段 · 每一步都有进入条件、退出条件与回退路径</text><text class="tag t1" x="72" y="262">一份 decision_log.json · Codex 与 Claude Code 可以接力</text><text class="tag t2" x="72" y="262">脚本重算 verdict · 子问局部返工 · 提交前合规门 fail-closed</text>
+  <rect x="72" y="300" width="108" height="36" rx="18" fill="#10A37F" fill-opacity="0.16" stroke="#10A37F" stroke-opacity="0.65"/><text class="chip" x="125.8" y="323.5">CUMCM 国赛</text><rect x="191.6" y="300" width="124" height="36" rx="18" fill="#8B5CF6" fill-opacity="0.16" stroke="#8B5CF6" stroke-opacity="0.65"/><text class="chip" x="253.5" y="323.5">MCM/ICM 美赛</text><rect x="327.4" y="300" width="74" height="36" rx="18" fill="#F97316" fill-opacity="0.16" stroke="#F97316" stroke-opacity="0.65"/><text class="chip" x="364.6" y="323.5">电工杯</text><rect x="413.9" y="300" width="182" height="36" rx="18" fill="#64748B" fill-opacity="0.16" stroke="#64748B" stroke-opacity="0.65"/><text class="chip" x="504.8" y="323.5">Codex · Claude Code</text>
+  <circle class="orbit" cx="1035" cy="200" r="160"/>
+  <line class="spoke" style="animation-name:s0" x1="1035" y1="200" x2="1035.0" y2="72.0"/><line class="spoke" style="animation-name:s1" x1="1035" y1="200" x2="1110.2" y2="96.4"/><line class="spoke" style="animation-name:s2" x1="1035" y1="200" x2="1156.7" y2="160.4"/><line class="spoke" style="animation-name:s3" x1="1035" y1="200" x2="1156.7" y2="239.6"/><line class="spoke" style="animation-name:s4" x1="1035" y1="200" x2="1110.2" y2="303.6"/><line class="spoke" style="animation-name:s5" x1="1035" y1="200" x2="1035.0" y2="328.0"/><line class="spoke" style="animation-name:s6" x1="1035" y1="200" x2="959.8" y2="303.6"/><line class="spoke" style="animation-name:s7" x1="1035" y1="200" x2="913.3" y2="239.6"/><line class="spoke" style="animation-name:s8" x1="1035" y1="200" x2="913.3" y2="160.4"/><line class="spoke" style="animation-name:s9" x1="1035" y1="200" x2="959.8" y2="96.4"/>
+  <circle class="pulse" cx="1035" cy="200" r="60"/>
+  <circle cx="1035" cy="200" r="60" fill="#0F172A"/>
+  <circle cx="1035" cy="200" r="60" fill="url(#core-grad)" stroke="#FFFFFF" stroke-opacity="0.25"/>
+  <text class="core-label" x="1035" y="198">decision_log</text>
+  <text class="core-label" x="1035" y="217">.json</text>
+  <text class="core-sub" x="1035" y="238">共享状态</text>
+  <circle class="node" style="animation-name:n0" cx="1035.0" cy="72.0" r="21"/><circle class="node" style="animation-name:n1" cx="1110.2" cy="96.4" r="21"/><circle class="node" style="animation-name:n2" cx="1156.7" cy="160.4" r="21"/><circle class="node" style="animation-name:n3" cx="1156.7" cy="239.6" r="21"/><circle class="node" style="animation-name:n4" cx="1110.2" cy="303.6" r="21"/><circle class="node" style="animation-name:n5" cx="1035.0" cy="328.0" r="21"/><circle class="node" style="animation-name:n6" cx="959.8" cy="303.6" r="21"/><circle class="node" style="animation-name:n7" cx="913.3" cy="239.6" r="21"/><circle class="node" style="animation-name:n8" cx="913.3" cy="160.4" r="21"/><circle class="node" style="animation-name:n9" cx="959.8" cy="96.4" r="21"/>
+  <text class="num" x="1035.0" y="77.5">0</text><text class="num" x="1110.2" y="101.9">1</text><text class="num" x="1156.7" y="165.9">2</text><text class="num" x="1156.7" y="245.1">3</text><text class="num" x="1110.2" y="309.1">4</text><text class="num" x="1035.0" y="333.5">5</text><text class="num" x="959.8" y="309.1">6</text><text class="num" x="913.3" y="245.1">7</text><text class="num" x="913.3" y="165.9">8</text><text class="num" x="959.8" y="101.9">9</text>
+</svg>
