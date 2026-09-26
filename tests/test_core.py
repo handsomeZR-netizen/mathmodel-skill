@@ -117,6 +117,29 @@ class PackageIntegrityTests(unittest.TestCase):
         declared = decision_log["stages"]["9"]["anti_patterns_check"]["total"]
         self.assertIsNone(declared)
 
+    def test_release_version_is_consistent_across_entrypoints(self) -> None:
+        plugin = json.loads(
+            (ROOT / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8")
+        )
+        version = plugin["version"]
+        major_minor = ".".join(version.split(".")[:2])
+        self.assertIn(f"(v{major_minor})", (ROOT / "SKILL.md").read_text(encoding="utf-8"))
+        self.assertIn(
+            f"version-v{version}-", (ROOT / "README.md").read_text(encoding="utf-8")
+        )
+        self.assertIn(
+            f"v{major_minor}", (ROOT / "assets" / "banner.svg").read_text(encoding="utf-8")
+        )
+
+    def test_readme_local_links_and_images_exist(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        targets = set(re.findall(r'(?:src|href)="\./([^"#]+)"', readme))
+        targets |= set(re.findall(r"\]\(\./([^)#]+)\)", readme))
+        self.assertIn("assets/banner.svg", targets)
+        for target in sorted(targets):
+            with self.subTest(target=target):
+                self.assertTrue((ROOT / target).exists())
+
     def test_effective_dimension_weights_only_use_valid_dimensions(self) -> None:
         table = json.loads(
             (ROOT / "config" / "dim_weights.json").read_text(encoding="utf-8")

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 660" width="980" height="660" role="img" aria-labelledby="st-title st-desc">
+  <title id="st-title">status.py 进度看板示例</title>
+  <desc id="st-desc">示例数据：CUMCM 2026 A 题进行到 Stage 5，Q2 需要局部精修，下一步只精修 Q2。</desc>
+  <style>
+    text{font:500 16px 'JetBrains Mono','SFMono-Regular','Cascadia Code',Consolas,'Liberation Mono',Menlo,'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','WenQuanYi Zen Hei',monospace;white-space:pre}
+    .prompt{fill:#6EE7B7}
+    .head{fill:#F8FAFC;font-weight:700}
+    .k{fill:#7DD3FC}
+    .v{fill:#E2E8F0}
+    .dim{fill:#94A3B8}
+    .pend{fill:#64748B}
+    .ok{fill:#4ADE80}
+    .cur{fill:#FBBF24}
+    .warn{fill:#FBBF24}
+    .rev{fill:#C4B5FD}
+    .next{fill:#F8FAFC;font-weight:700}
+    .bar-on{fill:#10A37F}
+    .bar-off{fill:#334155}
+    .cursor{fill:#6EE7B7;animation:blink 1.1s steps(1) infinite}
+    @keyframes blink{50%{opacity:0}}
+    @media (prefers-reduced-motion: reduce){*{animation:none!important}}
+  </style>
+  <rect x="0.5" y="0.5" width="979" height="659" rx="14" fill="#0B1020" stroke="#FFFFFF" stroke-opacity="0.1"/>
+  <path d="M0.5 44V14.5a14 14 0 0 1 14-14h951a14 14 0 0 1 14 14V44z" fill="#151B2E"/>
+  <circle cx="26" cy="22" r="7" fill="#FF5F57"/>
+  <circle cx="50" cy="22" r="7" fill="#FEBC2E"/>
+  <circle cx="74" cy="22" r="7" fill="#28C840"/>
+  <text x="490.0" y="27" text-anchor="middle" style="font:500 13px 'JetBrains Mono','SFMono-Regular','Cascadia Code',Consolas,'Liberation Mono',Menlo,monospace;fill:#8B9AB3">my-modeling-project — 看进度</text>
+  <text class="prompt" x="28" y="90">$ python scripts/status.py --workspace .</text><text class="head" x="28" y="125">mathmodel-skill · 进度看板</text><text class="dim" x="28" y="152">CUMCM 国赛 · 2026-A · standard 模式</text><text class="k" x="28" y="179">截止</text><text class="v" x="84" y="179">2026-09-13T20:00+08:00 · 剩余 48h · 推荐 standard</text><text class="k" x="28" y="206">进度</text><text x="84" y="206"><tspan class="bar-on">██████████</tspan><tspan class="bar-off">░░░░░░░░░░</tspan><tspan class="v">  50% (5/10)</tspan></text><text class="ok" x="40" y="241">✓</text><text class="v" x="64" y="241">0</text><text class="v" x="88" y="241">团队启动与资料预扫</text><text class="ok" x="330" y="241">pass</text><text class="dim" x="500" y="241">min 7 · mean 8.2</text><text class="ok" x="40" y="268">✓</text><text class="v" x="64" y="268">1</text><text class="v" x="88" y="268">多题比较与选题</text><text class="ok" x="330" y="268">pass_early</text><text class="dim" x="500" y="268">min 9 · mean 9.2</text><text class="ok" x="40" y="295">✓</text><text class="v" x="64" y="295">2</text><text class="v" x="88" y="295">问题拆解</text><text class="ok" x="330" y="295">pass</text><text class="dim" x="500" y="295">min 7 · mean 8.2</text><text class="ok" x="40" y="322">✓</text><text class="v" x="64" y="322">3</text><text class="v" x="88" y="322">模型选型</text><text class="ok" x="330" y="322">pass</text><text class="dim" x="500" y="322">min 7 · mean 8.2 · w 8.4</text><text class="ok" x="40" y="349">✓</text><text class="v" x="64" y="349">4</text><text class="v" x="88" y="349">假设·符号·术语</text><text class="ok" x="330" y="349">pass</text><text class="dim" x="500" y="349">min 7 · mean 8.2</text><text class="cur" x="40" y="376">▶</text><text class="v" x="64" y="376">5</text><text class="v" x="88" y="376">递归求解 Q1…Qn</text><text class="warn" x="330" y="376">refine_partial</text><text class="dim" x="500" y="376">min 6 · mean 7.9</text><text class="pend" x="40" y="403">○</text><text class="dim" x="64" y="403">6</text><text class="pend" x="88" y="403">稳健性分析</text><text class="pend" x="40" y="430">○</text><text class="dim" x="64" y="430">7</text><text class="pend" x="88" y="430">模型评价</text><text class="pend" x="40" y="457">○</text><text class="dim" x="64" y="457">8</text><text class="pend" x="88" y="457">论文装配</text><text class="pend" x="40" y="484">○</text><text class="dim" x="64" y="484">9</text><text class="pend" x="88" y="484">提交前终审</text><text class="k" x="28" y="519">Stage 5 子问</text><text x="150" y="519"><tspan class="ok">Q1 pass</tspan><tspan class="dim">  ·  </tspan><tspan class="warn">Q2 refine</tspan><tspan class="dim">  ·  </tspan><tspan class="rev">Q3 mark_for_review</tspan></text><text class="k" x="28" y="546">合规门</text><text class="ok" x="100" y="546">✓ 规则基线：核对于 2026-09-10  ✓ AI 台账：3 条使用记录</text><text class="k" x="28" y="573">终审门</text><text class="pend" x="100" y="573">○ 当届规则  ○ 匿名  ○ 页数  ○ AI 披露  ○ 支撑材料</text><text class="k" x="28" y="608">下一步</text><text class="next" x="100" y="608">只精修 Q2，其余 Qi 保持不动，然后重新聚合 Stage 5</text><rect class="cursor" x="28" y="624" width="10" height="18"/>
+</svg>

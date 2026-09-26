@@ -19,6 +19,7 @@ This repository contains the `mathmodel-skill` product. When working inside this
 - Keep `SKILL.md` concise and dispatch stage-specific detail into `references/`.
 - Do not add runtime claims about awards, token savings, or elapsed time without a reproducible benchmark.
 - When changing behavior, update the README, tests, plugin version, state schema, and relevant competition docs together.
+- README visuals in `assets/` are original SVGs. Keep their version, stage names, and example data consistent with `SKILL.md` and `scripts/status.py` when those change.
 - Do not vendor or reintroduce templates, examples, papers, or binary assets without a clear redistribution license. Keep runtime dependencies and external-source boundaries accurate in `THIRD_PARTY_NOTICES.md`.
 
 ## Verification

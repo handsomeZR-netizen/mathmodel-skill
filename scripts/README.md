@@ -4,6 +4,35 @@
 
 ## 运行时工具
 
+### `init_workspace.py` — 工作区初始化（只创建、不覆盖）
+
+Stage 0 拿到启动字段后由 agent 调用。它创建 `state/`、`results/`、`figures/`、`paper_workspace/`、`paper_output/`、`support_materials/`，从 `templates/shared/decision_log.json` 生成新状态，并写入竞赛、题号、队员数、截止时间、`started_at` 与一条 `workspace_init` 事件。
+
+```bash
+python scripts/init_workspace.py --competition cumcm --workspace /path/to/project
+python scripts/init_workspace.py --competition mcm --workspace /path/to/project \
+  --problem C --team-size 3 --hours-left 96 --problem-pdf /path/to/2027_MCM_C.pdf
+python scripts/init_workspace.py --competition diangong --workspace /path/to/project \
+  --problem 未公布 --deadline 2027-05-24T08:00+08:00 --json
+```
+
+- `state/decision_log.json` 已存在时**不写入任何内容**，只报告已保存的竞赛、阶段和模式；竞赛不一致或文件无法解析时以非零退出码失败。
+- 题号按 `competitions/<comp>/topic_specs.json` 校验；题目未公布时传 `未公布`，保持 `letter=null`。
+- `--deadline` 与 `--hours-left` 二选一；未传 `--year` 时取截止时间所在年份。
+- 输出按剩余时间给出模式建议，但不会自动修改 `mode`；需要团队确认后再写入 events。
+
+### `status.py` — 只读进度看板（“看进度”）
+
+读取项目状态并输出：当前阶段、10 个阶段的最新 verdict 与分数、Stage 5 per-Qi 状态、规则/AI 台账/终审合规门、截止倒计时、按 SKILL.md 规则计算的模式建议，以及一条确定性的下一步。它从不修改状态文件。
+
+```bash
+python scripts/status.py --workspace /path/to/project             # 终端看板
+python scripts/status.py --workspace /path/to/project --markdown  # 适合贴进对话
+python scripts/status.py --decision-log /path/to/state/decision_log.json --json
+```
+
+未传路径时按 `MATHMODEL_STATE_DIR`、`CUMCM_STATE_DIR`、`<cwd>/state/decision_log.json` 的顺序解析。状态不存在或 `current_stage` 非法时以退出码 1 失败。
+
 ### `doctor.py` — 环境与包结构预检
 
 在启动工作流或切换竞赛时运行。默认同时检查 skill 结构、竞赛包、JSON 配置和本地渲染工具；`--skip-tools` 适合 CI 或只做静态检查。

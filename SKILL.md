@@ -3,11 +3,11 @@ name: mathmodel-skill
 description: CUMCM 国赛、MCM/ICM 美赛与电工杯数学建模竞赛的端到端协作工作流。Use when a user explicitly works on one of these modeling contests or asks to run/review a modeling-competition paper from problem selection through modeling, solving, robustness, writing, compliance, and final submission review. Provides 10 stages, persistent decision state, competition-specific rules/templates, deterministic scoring helpers, numbered decisions, and Codex/Claude Code handoff. Do not trigger for generic model selection, ordinary data analysis, or non-competition paper review.
 ---
 
-# mathmodel-skill — 数学建模三竞赛工作流 (v6.1)
+# mathmodel-skill — 数学建模三竞赛工作流 (v6.2)
 
 10 阶段把 72–96 小时的竞赛协作变成可恢复、可检查的流程。用户回答关键问题，agent 维护状态与脚本。每阶段产出经过 rubric 自评、定向精修与跨阶段一致性回检；Stage 8–9 先遵守当届官方规则，再做多视角终审。CUMCM 包含 91 份来源文档，其中 59 份进入文本统计；MCM/电工杯经验统计明确为 `n=0`，不提供合成分位。
 
-**v6.1 更新**: 加入竞赛规则基线与 AI 使用披露链路；三竞赛统一使用 marker 模板并对提交元数据 fail closed；修复状态路径错位、评分 verdict 持久化、题型权重合并和 YAML frontmatter 等问题；新增 preflight doctor 与自动化验证。
+**v6.2 更新**: 新增 `scripts/init_workspace.py`（只创建、不覆盖的工作区初始化）与 `scripts/status.py`（只读进度看板：阶段 verdict、per-Qi、合规门、截止倒计时、模式建议与下一步）；启动与“看进度”改由脚本确定性完成。v6.1 的规则基线、AI 披露链路、fail-closed 模板与 doctor 预检保持不变。
 
 ---
 
@@ -27,7 +27,7 @@ Codex 优先按 skill 目录发现本文件:
 
 ## Harness 兼容 (Claude Code / Codex)
 
-本 skill v6.1 以 Codex Skills 为一等入口, 同时保持 harness-agnostic 设计:
+本 skill v6.2 以 Codex Skills 为一等入口, 同时保持 harness-agnostic 设计:
 
 | harness | 入口文件 | 用户交互工具 | 状态文件 |
 |---------|---------|-------------|---------|
@@ -79,9 +79,11 @@ Codex 优先按 skill 目录发现本文件:
    - 题目 PDF 路径 ("未公布"亦可)
 
 3. 自动初始化 (agent 自动完成, 不要让用户编辑 json):
-   - 不存在 `<cwd>/state/decision_log.json` → 创建目录并复制 `<skill>/templates/shared/decision_log.json` 到该路径
-   - 写入 decision_log.competition = <选定竞赛>
-   - 已存在 → 读 current_stage 字段决定恢复点
+   - 运行 `python <skill>/scripts/init_workspace.py --competition <comp> --workspace <cwd>`，按已知答案追加 `--problem <题号|未公布>`、`--team-size N`、`--deadline <ISO>` 或 `--hours-left H`、`--problem-pdf <path>`
+   - 脚本创建 `state/ results/ figures/ paper_workspace/ paper_output/ support_materials/`，从模板生成 state 并写入 competition 与 problem_meta
+   - state 已存在时脚本**不修改**任何内容，只报告 competition 与 current_stage；竞赛不一致时失败，按“切到 <comp>”处理
+   - 脚本输出的模式建议只是建议；与用户确认后才改 mode 并写入 events
+   - 无法运行 Python 时，才手动复制 `<skill>/templates/shared/decision_log.json` 并写入 competition
 
 4. 加载 `competitions/<comp>/current_rules.md`（若存在），打开其中官方链接核对当届规则并写入 compliance；再按需加载 winning patterns
 
@@ -90,7 +92,7 @@ Codex 优先按 skill 目录发现本文件:
 
 **已有 state 触发** (用户中途回到 skill):
 ```
-1. 读 `<cwd>/state/decision_log.json` 的 competition 与 current_stage
+1. 运行 `python <skill>/scripts/status.py --workspace <cwd> --json` 取得 competition、current_stage、最新 verdict 与下一步；需要细节时再读 `<cwd>/state/decision_log.json`
 2. 加载对应 stage_NN.md (按需结合 competitions/<comp>/* 内容)
 3. 不重复读 winning_patterns
 ```
@@ -113,7 +115,7 @@ Codex 优先按 skill 目录发现本文件:
 | standard | 按阶段加载并保留决策摘要 | L1+L2 | 默认主流程 |
 | championship | 在终审阶段扩展证据与独立视角 | L1+L2+L3+L4 + red-team | 提交前最后冲刺 |
 
-模式自动推荐 (按距 deadline 剩余):
+模式自动推荐 (按距 deadline 剩余；`scripts/status.py` 按同一规则计算，仅作建议):
 - > 60h: standard (最后 6h 升 championship)
 - 24-60h: standard
 - 6-24h: fast 关键阶段 + championship 终审
@@ -212,7 +214,7 @@ L2 跨阶段回检 (stage 5/6/8 末尾) 读这个文件主动找冲突, 触发**
 - "切到 fast" → 关闭迭代
 - "回退到 stage M" → 读 decision_log, 回退 current_stage 并清理 ≥M 节点
 - "做 L2 回检" → 立即触发 cross-stage backtrack
-- "看进度" → 输出 decision_log 摘要 + 当前评分
+- "看进度" → 运行 `python <skill>/scripts/status.py --workspace <cwd> --markdown`，原样展示看板与下一步 (只读，不改 state)
 
 ---
 

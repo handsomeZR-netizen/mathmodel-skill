@@ -117,11 +117,12 @@ pip install -r <skill>/templates/shared/requirements.txt
 
 **目录初始化** (agent 自动执行, 不要让用户敲命令):
 ```bash
-mkdir -p state results figures paper_workspace
-cp <skill>/templates/shared/decision_log.json state/decision_log.json   # 仅当不存在时
+# 只创建、不覆盖：state 已存在时只报告 competition 与 current_stage
+python <skill>/scripts/init_workspace.py --competition cumcm --workspace . \
+  --problem 未公布 --team-size 3 --hours-left 72
 ```
 
-写入 `decision_log.competition` 字段: agent 用 Read + Edit/Write (Claude Code) 或 apply_patch (Codex CLI) 完成, 不要让用户跑 `python -c ...`。
+脚本创建 `state/ results/ figures/ paper_workspace/ paper_output/ support_materials/`，并把 Step 1 已知的竞赛、题号、队员数、截止时间与题面路径写入 state。其余字段 (角色、工具、预扫等) 仍由 agent 用 Read + Edit/Write (Claude Code) 或 apply_patch (Codex CLI) 写入, 不要让用户跑 `python -c ...`。脚本给出的模式建议需要用户确认后才能修改 `mode`。
 
 确认 (按 competition 分支):
 | competition | LaTeX 模板 | 引擎 | 静态资料 |

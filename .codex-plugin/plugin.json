@@ -1,6 +1,6 @@
 {
   "name": "mathmodel-skill",
-  "version": "6.1.0",
+  "version": "6.2.0",
   "description": "A stateful, compliance-aware ten-stage workflow for CUMCM, MCM/ICM, and Diangong Cup mathematical modeling competitions.",
   "author": {
     "name": "handsomeZR-netizen",
@@ -14,7 +14,9 @@
     "cumcm",
     "mcm",
     "icm",
-    "codex-skill"
+    "diangong",
+    "codex-skill",
+    "claude-code"
   ],
   "skills": "./skills/",
   "interface": {

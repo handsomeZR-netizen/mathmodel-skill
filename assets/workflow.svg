@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 540" width="1280" height="540" role="img" aria-labelledby="wf-title wf-desc">
+  <title id="wf-title">mathmodel-skill 10 阶段主流程</title>
+  <desc id="wf-desc">Stage 0 团队启动到 Stage 9 提交终审，每个阶段开头读取、结尾写回 state/decision_log.json。</desc>
+  <style>
+    .h1{font:700 22px 'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','WenQuanYi Zen Hei',sans-serif;fill:#F1F5F9}
+    .h2{font:400 14px 'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','WenQuanYi Zen Hei',sans-serif;fill:#94A3B8}
+    .card{fill:#0F172A;fill-opacity:0.92;stroke:#243049;stroke-width:1.5;animation:card 11s infinite}
+    @keyframes card{0%,100%{stroke:#243049;fill:#0F172A}3%,10%{stroke:#6EE7B7;fill:#0E2A2A}14%{stroke:#243049;fill:#0F172A}}
+    .badge{font:700 16px 'Inter','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;fill:#FFFFFF;text-anchor:middle}
+    .label{font:700 18px 'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','WenQuanYi Zen Hei',sans-serif;fill:#F1F5F9}
+    .key{font:500 12.5px 'JetBrains Mono','SFMono-Regular','Cascadia Code',Consolas,'Liberation Mono',Menlo,monospace;fill:#8B9AB3}
+    .tagtext{font:600 13px 'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','WenQuanYi Zen Hei',sans-serif;fill:#E2E8F0;text-anchor:middle}
+    .flow{fill:none;stroke:#6EE7B7;stroke-opacity:0.7;stroke-width:2;stroke-dasharray:7 6;animation:flow 1.2s linear infinite}
+    @keyframes flow{to{stroke-dashoffset:-13}}
+    .tap{stroke:#6EE7B7;stroke-opacity:0.28;stroke-width:1.5;stroke-dasharray:2 5}
+    .band{font:600 15px 'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','WenQuanYi Zen Hei',sans-serif;fill:#A7F3D0;text-anchor:middle}
+    .legend{font:400 13.5px 'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','WenQuanYi Zen Hei',sans-serif;fill:#A5B4C8}
+    .c0{animation-delay:0.0s}.c1{animation-delay:1.1s}.c2{animation-delay:2.2s}.c3{animation-delay:3.3s}.c4{animation-delay:4.4s}.c5{animation-delay:5.5s}.c6{animation-delay:6.6s}.c7{animation-delay:7.7s}.c8{animation-delay:8.8s}.c9{animation-delay:9.9s}
+    @media (prefers-reduced-motion: reduce){*{animation:none!important}}
+  </style>
+  <defs>
+    <linearGradient id="wf-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B1220"/>
+      <stop offset="0.55" stop-color="#111A36"/>
+      <stop offset="1" stop-color="#1A1240"/>
+    </linearGradient>
+    <radialGradient id="wf-glow-a" cx="0.12" cy="0.1" r="0.55">
+      <stop offset="0" stop-color="#10A37F" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#10A37F" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="wf-glow-b" cx="0.9" cy="0.95" r="0.6">
+      <stop offset="0" stop-color="#8B5CF6" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="wf-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#FFFFFF" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+    <clipPath id="wf-clip"><rect width="1280" height="540" rx="24"/></clipPath>
+  </defs>
+  <g clip-path="url(#wf-clip)">
+    <rect width="1280" height="540" fill="url(#wf-bg)"/>
+    <rect width="1280" height="540" fill="url(#wf-grid)"/>
+    <rect width="1280" height="540" fill="url(#wf-glow-a)"/>
+    <rect width="1280" height="540" fill="url(#wf-glow-b)"/>
+  </g>
+  <rect x="0.5" y="0.5" width="1279" height="539" rx="24" fill="none" stroke="#FFFFFF" stroke-opacity="0.08"/>
+  <defs>
+    <linearGradient id="badge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#10A37F"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#6EE7B7" fill-opacity="0.85"/>
+    </marker>
+  </defs>
+  <text class="h1" x="50" y="52">10 阶段主流程</text>
+  <text class="h2" x="1230" y="52" text-anchor="end">读取 state → 产出 → L1 自评 → 脚本重算 verdict → 写回 state</text>
+  <rect x="50" y="250" width="1180" height="44" rx="22" fill="#10A37F" fill-opacity="0.08" stroke="#10A37F" stroke-opacity="0.45" stroke-dasharray="6 6"/>
+  <text class="band" x="640" y="277">state/decision_log.json  ·  每阶段开头读、结尾写  ·  Codex 与 Claude Code 共用同一份状态</text>
+  <line class="tap" x1="150" y1="200.0" x2="150" y2="250"/><line class="tap" x1="395" y1="200.0" x2="395" y2="250"/><line class="tap" x1="640" y1="200.0" x2="640" y2="250"/><line class="tap" x1="885" y1="200.0" x2="885" y2="250"/><line class="tap" x1="1130" y1="200.0" x2="1130" y2="250"/><line class="tap" x1="1130" y1="294" x2="1130" y2="340.0"/><line class="tap" x1="885" y1="294" x2="885" y2="340.0"/><line class="tap" x1="640" y1="294" x2="640" y2="340.0"/><line class="tap" x1="395" y1="294" x2="395" y2="340.0"/><line class="tap" x1="150" y1="294" x2="150" y2="340.0"/>
+  <path class="flow" d="M250.0 158 L289.0 158" marker-end="url(#arrow)"/><path class="flow" d="M495.0 158 L534.0 158" marker-end="url(#arrow)"/><path class="flow" d="M740.0 158 L779.0 158" marker-end="url(#arrow)"/><path class="flow" d="M985.0 158 L1024.0 158" marker-end="url(#arrow)"/><path class="flow" d="M1230.0 158 C1264.0 158 1264.0 382 1236.0 382" marker-end="url(#arrow)"/><path class="flow" d="M1030.0 382 L991.0 382" marker-end="url(#arrow)"/><path class="flow" d="M785.0 382 L746.0 382" marker-end="url(#arrow)"/><path class="flow" d="M540.0 382 L501.0 382" marker-end="url(#arrow)"/><path class="flow" d="M295.0 382 L256.0 382" marker-end="url(#arrow)"/>
+  <rect x="80.6" y="76.0" width="139" height="28" rx="14" fill="#10A37F" fill-opacity="0.14" stroke="#10A37F" stroke-opacity="0.6"/><text class="tagtext" x="150" y="95.0">规则基线 · doctor</text><rect x="814.9" y="76.0" width="140" height="28" rx="14" fill="#8B5CF6" fill-opacity="0.14" stroke="#8B5CF6" stroke-opacity="0.6"/><text class="tagtext" x="885" y="95.0">反事实 · red-team</text><rect x="1036.2" y="436.0" width="188" height="28" rx="14" fill="#F97316" fill-opacity="0.14" stroke="#F97316" stroke-opacity="0.6"/><text class="tagtext" x="1130" y="455.0">per-Qi · refine_partial</text><rect x="830.7" y="436.0" width="109" height="28" rx="14" fill="#8B5CF6" fill-opacity="0.14" stroke="#8B5CF6" stroke-opacity="0.6"/><text class="tagtext" x="885" y="455.0">L2 跨阶段回检</text><rect x="325.6" y="436.0" width="139" height="28" rx="14" fill="#8B5CF6" fill-opacity="0.14" stroke="#8B5CF6" stroke-opacity="0.6"/><text class="tagtext" x="395" y="455.0">L2 回检 · AI 台账</text><rect x="79.9" y="436.0" width="140" height="28" rx="14" fill="#10A37F" fill-opacity="0.14" stroke="#10A37F" stroke-opacity="0.6"/><text class="tagtext" x="150" y="455.0">L3 Panel · 合规门</text>
+    <g>
+      <rect class="card c0" x="50.0" y="116.0" width="200" height="84" rx="16"/>
+      <circle cx="82.0" cy="158" r="18" fill="url(#badge)"/>
+      <text class="badge" x="82.0" y="164">0</text>
+      <text class="label" x="112.0" y="154">团队启动</text>
+      <text class="key" x="112.0" y="177">kickoff</text>
+    </g>
+    <g>
+      <rect class="card c1" x="295.0" y="116.0" width="200" height="84" rx="16"/>
+      <circle cx="327.0" cy="158" r="18" fill="url(#badge)"/>
+      <text class="badge" x="327.0" y="164">1</text>
+      <text class="label" x="357.0" y="154">选题决策</text>
+      <text class="key" x="357.0" y="177">problem_selection</text>
+    </g>
+    <g>
+      <rect class="card c2" x="540.0" y="116.0" width="200" height="84" rx="16"/>
+      <circle cx="572.0" cy="158" r="18" fill="url(#badge)"/>
+      <text class="badge" x="572.0" y="164">2</text>
+      <text class="label" x="602.0" y="154">问题拆解</text>
+      <text class="key" x="602.0" y="177">analysis</text>
+    </g>
+    <g>
+      <rect class="card c3" x="785.0" y="116.0" width="200" height="84" rx="16"/>
+      <circle cx="817.0" cy="158" r="18" fill="url(#badge)"/>
+      <text class="badge" x="817.0" y="164">3</text>
+      <text class="label" x="847.0" y="154">模型选型</text>
+      <text class="key" x="847.0" y="177">model_selection</text>
+    </g>
+    <g>
+      <rect class="card c4" x="1030.0" y="116.0" width="200" height="84" rx="16"/>
+      <circle cx="1062.0" cy="158" r="18" fill="url(#badge)"/>
+      <text class="badge" x="1062.0" y="164">4</text>
+      <text class="label" x="1092.0" y="154">假设与符号</text>
+      <text class="key" x="1092.0" y="177">foundation</text>
+    </g>
+    <g>
+      <rect class="card c5" x="1030.0" y="340.0" width="200" height="84" rx="16"/>
+      <circle cx="1062.0" cy="382" r="18" fill="url(#badge)"/>
+      <text class="badge" x="1062.0" y="388">5</text>
+      <text class="label" x="1092.0" y="378">子问求解 Qi</text>
+      <text class="key" x="1092.0" y="401">subproblem_loop</text>
+    </g>
+    <g>
+      <rect class="card c6" x="785.0" y="340.0" width="200" height="84" rx="16"/>
+      <circle cx="817.0" cy="382" r="18" fill="url(#badge)"/>
+      <text class="badge" x="817.0" y="388">6</text>
+      <text class="label" x="847.0" y="378">稳健性分析</text>
+      <text class="key" x="847.0" y="401">robustness</text>
+    </g>
+    <g>
+      <rect class="card c7" x="540.0" y="340.0" width="200" height="84" rx="16"/>
+      <circle cx="572.0" cy="382" r="18" fill="url(#badge)"/>
+      <text class="badge" x="572.0" y="388">7</text>
+      <text class="label" x="602.0" y="378">模型评价</text>
+      <text class="key" x="602.0" y="401">evaluation</text>
+    </g>
+    <g>
+      <rect class="card c8" x="295.0" y="340.0" width="200" height="84" rx="16"/>
+      <circle cx="327.0" cy="382" r="18" fill="url(#badge)"/>
+      <text class="badge" x="327.0" y="388">8</text>
+      <text class="label" x="357.0" y="378">论文装配</text>
+      <text class="key" x="357.0" y="401">writing</text>
+    </g>
+    <g>
+      <rect class="card c9" x="50.0" y="340.0" width="200" height="84" rx="16"/>
+      <circle cx="82.0" cy="382" r="18" fill="url(#badge)"/>
+      <text class="badge" x="82.0" y="388">9</text>
+      <text class="label" x="112.0" y="378">提交终审</text>
+      <text class="key" x="112.0" y="401">review</text>
+    </g>
+  <circle cx="56" cy="512" r="6" fill="#10A37F"/><text class="legend" x="70" y="517">L1 每阶段自评 + 脚本重算 verdict</text><circle cx="332.3999999999999" cy="512" r="6" fill="#8B5CF6"/><text class="legend" x="346.3999999999999" y="517">L2 跨阶段回检</text><circle cx="469.19999999999993" cy="512" r="6" fill="#F97316"/><text class="legend" x="483.19999999999993" y="517">Stage 5 按子问局部返工</text><circle cx="672.0" cy="512" r="6" fill="#64748B"/><text class="legend" x="686.0" y="517">L3 Panel / L4 校准（championship）</text>
+</svg>

@@ -83,6 +83,8 @@ AskUserQuestion(questions=[{
 两个 harness 均有 shell 工具。脚本调用一致:
 
 ```bash
+python <skill>/scripts/init_workspace.py --competition cumcm --workspace .
+python <skill>/scripts/status.py --workspace . --markdown
 python <skill>/scripts/score_artifact.py --stage 5 --critique state/critique_v0.json
 python scripts/extract_diff.py --artifact a.md --critique c.json --mode section
 python <skill>/scripts/render_paper.py --workspace paper_workspace/
@@ -133,7 +135,8 @@ python <skill>/scripts/render_paper.py --workspace paper_workspace/
 - [ ] 所有"选 X" 决策点都呈现编号选项
 - [ ] decision_log.json schema 完全一致 (含 v6 兼容字段)
 - [ ] scripts/*.py 退出码与输出 JSON 一致
-- [ ] cwd 下生成的目录结构 (state/results/figures/paper_workspace) 一致
+- [ ] cwd 下生成的目录结构 (`init_workspace.py` 创建的 state/results/figures/paper_workspace/paper_output/support_materials) 一致
+- [ ] "看进度" 在两个 harness 下都输出 `status.py` 看板，而不是各自手写摘要
 - [ ] Codex 安装包含 `agents/openai.yaml` 与 `.codex-plugin/plugin.json`
 
 任何一项不符 = 该 harness 适配未完成。
